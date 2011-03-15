@@ -23,17 +23,18 @@ function pageTransform(page) {
         },
         choice: function(html, node) {
         },
-        div: function(html, node) {
+        text: function(html, node) {
             var result = ["div", {"class": "contentbox"}];
             jsonml.childReduce(node, nodeHandler, result);
             html.push(result);
         },
         button: function(html, node) {
-            if(!jsonml.getAttr(node, id)) {
+            if(!jsonml.getAttr(node, "id")) {
                 throw "buttons must have an id attribute";
             }
-            var attr = {"class": "button", onclick: "window.__mui_dispatch__('" + jsonml.getAttr(node, "id") "');"};
-            var result = ["div", {"class": "button"}];
+            var attr = {"type": "submit", "value": "sometext", "class": "button", onclick: "window.__mui_dispatch__('" + jsonml.getAttr(node, "id") + "');"};
+            var result = ["span", attr, "foobar"];
+            html.push(result);
         }
     }
 
@@ -54,7 +55,7 @@ function pageTransform(page) {
     var title = jsonml.getAttr(page, "title") || "untitled";
     html.push(["div", {"class":"header"}, title]);
     jsonml.childReduce(page, nodeHandler, html);
-    html.push(["div", {"class":"footer"}, " "]);
+    html.push(["div", {"class":"contentend"}, " "]);
     return html;
 }
 

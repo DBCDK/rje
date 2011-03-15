@@ -40,6 +40,16 @@ body {
     text-shadow: rgba(0,0,0,0.5) -0px -1px 2px;
 }
 
+.button {
+    margin: 10px 10px 10px 10px;
+    padding: 10px 10px 10px 10px;
+    background-color: #fff;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #bbb;
+    border-radius: 10px;
+}
+
 .contentbox {
     margin: 10px 10px 10px 10px;
     padding: 10px 10px 10px 10px;
@@ -48,6 +58,12 @@ body {
     border-width: 1px;
     border-color: #bbb;
     border-radius: 8px;
+}
+
+.contentend {
+    height: 10px;
+    margin: 0;
+    padding: 0;
 }
 
 #container { 
