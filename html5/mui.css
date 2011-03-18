@@ -48,6 +48,13 @@ body {
     border-width: 1px;
     border-color: #bbb;
     border-radius: 10px;
+    text-align: center;
+    font: "Helvetica";
+/* 
+    font-size: 11pt;
+    font-weight: bold; 
+    color: #526595; 
+    */
 }
 
 .contentbox {
@@ -60,10 +67,19 @@ body {
     border-radius: 8px;
 }
 
+.label {
+    margin-bottom: 3px;
+}
+.option {
+    margin-left: 10px;
+}
 .contentend {
     height: 10px;
     margin: 0;
     padding: 0;
+}
+textarea {
+    width: 95%;
 }
 
 #container { 
