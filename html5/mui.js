@@ -1,5 +1,6 @@
 mui = {};
 
+
 exports = {};
 document.write('<script src="jsonml.js"></script>');
 document.write('<link rel="stylesheet" href="mui.css"></script>');
@@ -62,7 +63,7 @@ __mui__ = {};
                 if(!name) {
                     throw "choice widgets must have a name attribute";
                 }
-    
+                var select = ["select"];
                 jsonml.childReduce(node, function(html, node) {
                     if(node[0] !== "option") {
                         throw "only option nodes are allows as children to choices";
@@ -70,11 +71,10 @@ __mui__ = {};
                     if(!jsonml.getAttr(node, "value")) {
                         throw "option widgets must have a value attribute";
                     }
-                    var result = ["input", {"type": "radio", "value": jsonml.getAttr(node, "value"), "name": name}];
-                    jsonml.childReduce(node, nodeHandler, result);
-                    html.push(["div", {"class": "option"}, result]);
+                    select.push(["option", {"value": jsonml.getAttr(node, "value")}, node[2]]);
                     return html;
                 }, result);
+                result.push(select);
                 html.push(result);
             },
             text: function(html, node) {
