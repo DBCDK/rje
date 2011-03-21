@@ -20,6 +20,10 @@ __mui__ = {};
     var mui = __mui__;
     var global = this;
 
+    mui.loading = function() {
+        gId("loading").style.top = "50px";
+    };
+
     mui.callJsonpWebservice = function(url, callbackParameterName, args, callback, timeout) {
         // clone args, as we want to add a jsonp-callback-name-property
         // without altering the original parameter
@@ -63,6 +67,7 @@ __mui__ = {};
     
     // # Mobile user interface - html5 version
     mui.showPage = function(page) {
+        gId("loading").style.top = "-50px";
         if(page[0] !== "page") {
             throw("Parameter to showPage must be a jsonml 'page'");
         } 
@@ -231,9 +236,7 @@ __mui__ = {};
         muiCallback(muiObject);
     }
 
-    // TODO: this should be called when we know everything is loaded... need to find out how this is
-    setTimeout(main, 400);
-    document.write('<div id="container"><div id="current"></div><div id="prev"></div></div>');
+    document.write('<div id="container"><div id="current"></div><div id="prev"></div><div id="loading">loading...</div></div>');
 
-    
+    window.onload=main;
 })();
