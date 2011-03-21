@@ -21,6 +21,7 @@ __mui__ = {};
     var global = this;
 
     mui.loading = function() {
+        window.scroll(0,0);
         gId("loading").style.top = "50px";
     };
 
