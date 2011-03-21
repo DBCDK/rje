@@ -113,7 +113,7 @@ __mui__ = {};
                 if(!name) {
                     throw "choice widgets must have a name attribute";
                 }
-                var select = ["select"];
+                var select = ["select", {"name": jsonml.getAttr(node, "name")}];
                 jsonml.childReduce(node, function(html, node) {
                     if(node[0] !== "option") {
                         throw "only option nodes are allows as children to choices";
@@ -203,10 +203,8 @@ __mui__ = {};
             var tag = node.tagName;
             if(tag === "TEXTAREA") {
                 acc[name] = node.value;
-            } else if(tag === "INPUT" && node.getAttribute("type") === "radio") {
-                if(node.checked) {
-                    acc[name] = node.value;
-                }
+            } else if(tag === "SELECT") {
+                acc[name] = node.value;
             } else {
                 throw "unexpected form-like element: " + tag;
             }
