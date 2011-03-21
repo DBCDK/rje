@@ -6,10 +6,60 @@ document.write('<script src="jsonml.js"></script>');
 document.write('<link rel="stylesheet" href="mui.css"></script>');
 jsonml = exports;
 
+if (!Object.create) {
+    Object.create = function(o) {
+        var C = function () {};
+        C.prototype = o;
+        return new C;
+    };
+}
+
 __mui__ = {};
 
 (function(){
     var mui = __mui__;
+    var global = this;
+
+    mui.callJsonpWebservice = function(url, callbackParameterName, args, callback, timeout) {
+        // clone args, as we want to add a jsonp-callback-name-property
+        // without altering the original parameter
+        args = Object.create(args); 
+
+        // temporary global callback function, that deletes itself after used
+        var callbackName = uniqId();
+        global[callbackName] = function(data) {
+            delete global[callbackName];
+            callback(data);
+        }
+        args[callbackParameterName] = callbackName;
+        args.cacheBust = ""+Math.random();
+
+        var fullUrl = url + "?" + argsUrlEncode(args);
+        var scriptTag = document.createElement("script");
+        scriptTag.setAttribute("src", fullUrl);
+        document.body.appendChild(scriptTag);
+    }
+    function argsUrlEncode(args) {
+        var result = [];
+        for(name in args) {
+            result.push(escapeFixed(name) + "=" + escapeFixed(args[name]));
+        }
+        return result.join("&");
+    }
+
+    // Fixed uri escape. JavaScripts escape, encodeURI, ... are buggy.
+    function escapeFixed(uri) {
+        uri = uri.replace(/[^a-zA-Z0-9-_~.]/g, function(c) {
+            c = c.charCodeAt(0);
+            if(c > 255) {
+                return escapeFixed("&#" + c + ";");
+            } else {
+                return "%" + c.toString(16);
+            }
+        });
+        return uri;
+    };
+
     
     // # Mobile user interface - html5 version
     mui.showPage = function(page) {
@@ -27,7 +77,7 @@ __mui__ = {};
     uniqId = (function() {
         var id = 0;
         return function() {
-            return "__mui_id_" + ++id;
+            return "__mui_id_" + id++;
         }
     })();
 
@@ -168,17 +218,19 @@ __mui__ = {};
     }
     
     mui.__handleEvent = function(type, id) {
+        var muiObject = Object.create(mui);
         if(type==="button" && typeof id === "string") {
-            mui.event = id;
-            mui.form = formExtract(gId("current"), {});
-            muiCallback(mui);
+            muiObject.event = id;
+            muiObject.form = formExtract(gId("current"), {});
+            muiCallback(muiObject);
         } else {
             throw "invalid mui event: " + type;
         }
     };
     function main() {
-        mui.event = "start";
-        muiCallback(mui);
+        var muiObject = mui;
+        muiObject.event = "start";
+        muiCallback(muiObject);
     }
 
     // TODO: this should be called when we know everything is loaded... need to find out how this is
