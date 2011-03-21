@@ -10,6 +10,14 @@ body {
     font-size: 16px;
 }
 
+textarea {
+  -webkit-border-radius:10px;
+}
+
+select {
+  -webkit-border-radius:10px;
+}
+
 #loading {
     position: absolute;
     top: -50px;
