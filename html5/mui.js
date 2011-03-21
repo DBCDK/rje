@@ -24,19 +24,29 @@ __mui__ = {};
         gId("loading").style.top = "50px";
     };
 
-    mui.callJsonpWebservice = function(url, callbackParameterName, args, callback, timeout) {
+    mui.callJsonpWebservice = function(url, callbackParameterName, args, callback) {
         // clone args, as we want to add a jsonp-callback-name-property
         // without altering the original parameter
         args = Object.create(args); 
 
         // temporary global callback function, that deletes itself after used
         var callbackName = uniqId();
-        global[callbackName] = function(data) {
-            delete global[callbackName];
-            callback(data);
+        var callbackFn = global[callbackName] = function(data) {
+            if(global.hasOwnProperty(callbackName)) {
+                delete global[callbackName];
+                try {
+                    callback(data);
+                } catch(e) {
+                    mui.showPage(["page", {title: "Error"}, ["text", e.toString()]]);
+                    throw e;
+                }
+            }
         }
+        // if we haven't got an answer after one minute, assume that an error has occured, 
+        // and call the callback, without any arguments.
+        setTimeout(callbackFn, 60000);
+
         args[callbackParameterName] = callbackName;
-        args.cacheBust = ""+Math.random();
 
         var fullUrl = url + "?" + argsUrlEncode(args);
         var scriptTag = document.createElement("script");
@@ -225,7 +235,12 @@ __mui__ = {};
         if(type==="button" && typeof id === "string") {
             muiObject.event = id;
             muiObject.form = formExtract(gId("current"), {});
-            muiCallback(muiObject);
+            try {
+                muiCallback(muiObject);
+            } catch(e) {
+                mui.showPage(["page", {title: "Error"}, ["text", e.toString()]]);
+                throw e;
+            }
         } else {
             throw "invalid mui event: " + type;
         }
@@ -233,7 +248,12 @@ __mui__ = {};
     function main() {
         var muiObject = mui;
         muiObject.event = "start";
-        muiCallback(muiObject);
+        try {
+            muiCallback(muiObject);
+        } catch(e) {
+            mui.showPage(["page", {title: "Error"}, ["text", e.toString()]]);
+            throw e;
+        }
     }
 
     document.write('<div id="container"><div id="current"></div><div id="prev"></div><div id="loading">loading...</div></div>');
