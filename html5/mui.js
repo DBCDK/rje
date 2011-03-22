@@ -101,6 +101,22 @@ __mui__ = {};
     function pageTransform(page) {
 
         var handlers = {
+            lineinput: function(html, node) {
+                var result = ["div", {"class": "contentbox"}];
+    
+                var labelid = uniqId();
+                if(jsonml.getAttr(node, "label")) {
+                    result.push(["div", {"class": "label"}, ["label", {"for": labelid}, jsonml.getAttr(node, "label"), ":"]]);
+                }
+
+                var name = jsonml.getAttr(node, "name");
+                if(!name) {
+                    throw "inputarea widgets must have a name attribute";
+                }
+    
+                result.push(["input", {"type": "text", "id": labelid, "name": name}, ""]);
+                html.push(result);
+            },
             inputarea: function(html, node) {
                 var result = ["div", {"class": "contentbox"}];
     
@@ -221,6 +237,8 @@ __mui__ = {};
                 acc[name] = node.value;
             } else if(tag === "SELECT") {
                 acc[name] = node.value;
+            } else if(tag === "INPUT" && node.getAttribute("type") === "text") {
+                acc[name] = node.value;
             } else {
                 throw "unexpected form-like element: " + tag;
             }
@@ -236,6 +254,7 @@ __mui__ = {};
         if(type==="button" && typeof id === "string") {
             muiObject.event = id;
             muiObject.form = formExtract(gId("current"), {});
+            console.log(muiObject.form);
             try {
                 muiCallback(muiObject);
             } catch(e) {
