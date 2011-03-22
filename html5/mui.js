@@ -117,7 +117,7 @@ __mui__ = {};
                 var result = ["div", {"class": "input"}];
                 var type = jsonml.getAttr(node, "type");
                 if(!type) {
-                    throw "input widgets must have a name attribute";
+                    throw "input widgets must have a type attribute";
                 }
                 var name = jsonml.getAttr(node, "name");
                 if(!name) {
@@ -132,7 +132,9 @@ __mui__ = {};
                 if(type === "textbox") {
                     result.push(["textarea", {"class": type, "id": labelid, "name": name}, ""]);
                 } else if(type === "email" || type === "text") {
-                    result.push(["input", {"class": type, "type": type, "id": labelid, "name": name}, ""]);
+                    result.push(["input", {"class": type, "type": type, "id": labelid, "name": name}]);
+                } else if(type === "tel") {
+                    result.push(["input", {"class": type, "type": type, "id": labelid, "name": name}]);
                 } else {
                     throw "unknown input type: " + type;
                 }
@@ -208,7 +210,7 @@ __mui__ = {};
     }
     
     function domRemove(node) {
-        node.parentNode.removeChild(prev);
+        node.parentNode.removeChild(node);
     }
     
     function showHTML(html) {

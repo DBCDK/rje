@@ -11,7 +11,7 @@ body {
 }
 
 textarea {
-    width: 100%;
+    width: 80%;
     font-size: 16px;
     border-radius: 10px;
   -webkit-border-radius:10px;
@@ -24,7 +24,7 @@ select {
 }
 
 input {
-    width: 100%;
+    width: 80%;
     font-size: 16px;
     border-radius: 10px;
   -webkit-border-radius:10px;
