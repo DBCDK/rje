@@ -18,6 +18,10 @@ select {
   -webkit-border-radius:10px;
 }
 
+input {
+  -webkit-border-radius:10px;
+}
+
 #loading {
     position: absolute;
     top: -50px;
