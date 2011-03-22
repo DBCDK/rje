@@ -24,7 +24,7 @@ __mui__ = {};
     function callbackError(e) {
                 mui.showPage(["page", {title: "Error"}, 
                     ["text", e.toString()],
-                    ["button", {id: "start"}, "Back to start"]
+                    ["button", {fn: main}, "Back to start"]
                     ]);
                 throw e;
     }
@@ -106,7 +106,6 @@ __mui__ = {};
     })();
     
     function pageTransform(page) {
-
         var handlers = {
             section: function(html, node) {
                 var result = ["div", {"class": "contentbox input"}];
@@ -134,7 +133,7 @@ __mui__ = {};
                 } else if(type === "email" || type === "text") {
                     result.push(["input", {"class": type, "type": type, "id": labelid, "name": name}]);
                 } else if(type === "tel") {
-                    result.push(["input", {"class": type, "type": type, "id": labelid, "name": name}]);
+                    result.push(["input", {"class": type, "type": "number", "id": labelid, "name": name}]);
                 } else {
                     throw "unknown input type: " + type;
                 }
@@ -172,10 +171,12 @@ __mui__ = {};
                 html.push(result);
             },
             button: function(html, node) {
-                if(!jsonml.getAttr(node, "id")) {
-                    throw "buttons must have an id attribute";
+                if(!jsonml.getAttr(node, "fn")) {
+                    throw "buttons must have an fn attribute, containing a function to call";
                 }
-                var attr = {"class": "button", onclick: "__mui__.__handleEvent('button','" + jsonml.getAttr(node, "id") + "');"};
+                var fnid = uniqId();
+                callbacks[fnid] = jsonml.getAttr(node, "fn");
+                var attr = {"class": "button", onclick: "__mui__.__call_fn('"+fnid+"');"};
                 var result = ["div", attr];
                 jsonml.childReduce(node, nodeHandler, result);
                 html.push(result);
@@ -200,7 +201,7 @@ __mui__ = {};
         jsonml.childReduce(page, nodeHandler, html);
         return [["div", {"class":"header"}, title], html, ["div", {"class":"contentend"}, " "]];
     }
-    
+
     function height(dom) {
         return document.defaultView.getComputedStyle(dom, "").getPropertyValue("height");
     }
@@ -238,12 +239,13 @@ __mui__ = {};
 
     function formExtract(node, acc) {
         var name = node.getAttribute && node.getAttribute("name");
+        var type = node.getAttribute && node.getAttribute("type");
         if(name) {
             var tag = node.tagName;
             if(tag === "TEXTAREA" 
             || tag === "SELECT"
             || (tag === "INPUT" && 
-                    (node.getAttribute("type") === "text" || node.getAttribute("type") === "email"))) {
+                    (type === "text" || type === "email" || type === "number"))) {
                 acc[name] = node.value;
             } else {
                 throw "unexpected form-like element: " + tag;
@@ -254,27 +256,28 @@ __mui__ = {};
         }
         return acc;
     }
-    
-    mui.__handleEvent = function(type, id) {
+
+    var callbacks = {};
+    __mui__.__call_fn = function(fnid) {
+        callback = callbacks[fnid];
+        callbacks = {};
+
         var muiObject = Object.create(mui);
-        if(type==="button" && typeof id === "string") {
-            muiObject.event = id;
-            muiObject.form = formExtract(gId("current"), {});
-            console.log(muiObject.form);
-            try {
-                muiCallback(muiObject);
-            } catch(e) {
-                callbackError(e);
-            }
-        } else {
-            throw "invalid mui event: " + type;
-        }
-    };
-    function main() {
-        var muiObject = mui;
-        muiObject.event = "start";
+        muiObject.form = formExtract(gId("current"), {});
         try {
-            muiCallback(muiObject);
+            callback(muiObject);
+        } catch(e) {
+            callbackError(e);
+        }
+    }
+    
+    
+    mui.form = {};
+
+    function muiMain() {
+        var muiObject = Object.create(mui);
+        try {
+            main(muiObject);
         } catch(e) {
             callbackError(e);
         }
@@ -282,5 +285,5 @@ __mui__ = {};
 
     document.write('<div id="container"><div id="current"></div><div id="prev"></div><div id="loading">loading...</div></div>');
 
-    window.onload=main;
+    window.onload=muiMain;
 })();
