@@ -20,6 +20,15 @@ __mui__ = {};
     var mui = __mui__;
     var global = this;
 
+
+    function callbackError(e) {
+                mui.showPage(["page", {title: "Error"}, 
+                    ["text", e.toString()],
+                    ["button", {id: "start"}, "Back to start"]
+                    ]);
+                throw e;
+    }
+
     mui.loading = function() {
         window.scroll(0,0);
         gId("loading").style.top = "50px";
@@ -38,8 +47,7 @@ __mui__ = {};
                 try {
                     callback(data);
                 } catch(e) {
-                    mui.showPage(["page", {title: "Error"}, ["text", e.toString()]]);
-                    throw e;
+                    callbackError(e);
                 }
             }
         }
@@ -96,45 +104,42 @@ __mui__ = {};
             return "__mui_id_" + id++;
         }
     })();
-
     
     function pageTransform(page) {
 
         var handlers = {
-            lineinput: function(html, node) {
-                var result = ["div", {"class": "contentbox"}];
-    
-                var labelid = uniqId();
-                if(jsonml.getAttr(node, "label")) {
-                    result.push(["div", {"class": "label"}, ["label", {"for": labelid}, jsonml.getAttr(node, "label"), ":"]]);
-                }
-
-                var name = jsonml.getAttr(node, "name");
-                if(!name) {
-                    throw "inputarea widgets must have a name attribute";
-                }
-    
-                result.push(["input", {"type": "text", "id": labelid, "name": name}, ""]);
+            section: function(html, node) {
+                var result = ["div", {"class": "contentbox input"}];
+                jsonml.childReduce(node, nodeHandler, result);
                 html.push(result);
             },
-            inputarea: function(html, node) {
-                var result = ["div", {"class": "contentbox"}];
-    
+            input: function(html, node) {
+                var result = ["div", {"class": "input"}];
+                var type = jsonml.getAttr(node, "type");
+                if(!type) {
+                    throw "input widgets must have a name attribute";
+                }
+                var name = jsonml.getAttr(node, "name");
+                if(!name) {
+                    throw "input widgets must have a name attribute";
+                }
+
                 var labelid = uniqId();
                 if(jsonml.getAttr(node, "label")) {
                     result.push(["div", {"class": "label"}, ["label", {"for": labelid}, jsonml.getAttr(node, "label"), ":"]]);
                 }
 
-                var name = jsonml.getAttr(node, "name");
-                if(!name) {
-                    throw "inputarea widgets must have a name attribute";
+                if(type === "textbox") {
+                    result.push(["textarea", {"class": type, "id": labelid, "name": name}, ""]);
+                } else if(type === "email" || type === "text") {
+                    result.push(["input", {"class": type, "type": type, "id": labelid, "name": name}, ""]);
+                } else {
+                    throw "unknown input type: " + type;
                 }
-    
-                result.push(["textarea", {"id": labelid, "name": name}, ""]);
                 html.push(result);
             },
             choice: function(html, node) {
-                var result = ["div", {"class": "contentbox"}];
+                var result = ["div", {"class": "input"}];
     
                 var labelid = uniqId();
                 if(jsonml.getAttr(node, "label")) {
@@ -160,7 +165,7 @@ __mui__ = {};
                 html.push(result);
             },
             text: function(html, node) {
-                var result = ["div", {"class": "contentbox"}];
+                var result = ["div", {"class": "text"}];
                 jsonml.childReduce(node, nodeHandler, result);
                 html.push(result);
             },
@@ -233,11 +238,10 @@ __mui__ = {};
         var name = node.getAttribute && node.getAttribute("name");
         if(name) {
             var tag = node.tagName;
-            if(tag === "TEXTAREA") {
-                acc[name] = node.value;
-            } else if(tag === "SELECT") {
-                acc[name] = node.value;
-            } else if(tag === "INPUT" && node.getAttribute("type") === "text") {
+            if(tag === "TEXTAREA" 
+            || tag === "SELECT"
+            || (tag === "INPUT" && 
+                    (node.getAttribute("type") === "text" || node.getAttribute("type") === "email"))) {
                 acc[name] = node.value;
             } else {
                 throw "unexpected form-like element: " + tag;
@@ -258,8 +262,7 @@ __mui__ = {};
             try {
                 muiCallback(muiObject);
             } catch(e) {
-                mui.showPage(["page", {title: "Error"}, ["text", e.toString()]]);
-                throw e;
+                callbackError(e);
             }
         } else {
             throw "invalid mui event: " + type;
@@ -271,8 +274,7 @@ __mui__ = {};
         try {
             muiCallback(muiObject);
         } catch(e) {
-            mui.showPage(["page", {title: "Error"}, ["text", e.toString()]]);
-            throw e;
+            callbackError(e);
         }
     }
 

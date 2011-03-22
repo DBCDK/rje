@@ -5,21 +5,33 @@ hardcoded pixel sizes are to be replaced with javascript-calculated styles
 body { 
     margin: 0; 
     padding: 0; 
-    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAABCAIAAACdaSOZAAAAAXNSR0IArs4c6QAAABZJREFUCNdjPHrmCgMC/GNjY2NgYAAAN00Dd2Fg5+4AAAAASUVORK5CYII=");
+/*    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAABCAIAAACdaSOZAAAAAXNSR0IArs4c6QAAABZJREFUCNdjPHrmCgMC/GNjY2NgYAAAN00Dd2Fg5+4AAAAASUVORK5CYII="); */
     font-family: Helvetica, sans-serif;
     font-size: 16px;
 }
 
 textarea {
+    width: 100%;
+    font-size: 16px;
+    border-radius: 10px;
   -webkit-border-radius:10px;
 }
 
 select {
+    border-radius: 10px;
+    font-size: 16px;
   -webkit-border-radius:10px;
 }
 
 input {
+    width: 100%;
+    font-size: 16px;
+    border-radius: 10px;
   -webkit-border-radius:10px;
+}
+
+.input {
+    padding: 10px 0 10px 0;
 }
 
 #loading {
