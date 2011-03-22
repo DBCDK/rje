@@ -2,8 +2,8 @@ mui = {};
 
 
 exports = {};
-document.write('<script src="jsonml.js"></script>');
-document.write('<link rel="stylesheet" href="mui.css"></script>');
+document.write('<script src="mui/jsonml.js"></script>');
+document.write('<link rel="stylesheet" href="mui/mui.css"></script>');
 jsonml = exports;
 
 if (!Object.create) {
