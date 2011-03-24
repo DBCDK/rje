@@ -25,7 +25,7 @@
             var scriptTag = document.createElement("script");
 
             // TODO: handling of path
-            scriptTag.src = path + name + ".js" 
+            scriptTag.src = path + name + ".js?" + Math.random();
 
             // Currently no IE 6/7 support - could be implemented
             // with addional onreadystatechange...

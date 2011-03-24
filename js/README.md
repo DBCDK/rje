@@ -1,11 +1,12 @@
 # JavaScript Modules
 
-## GUI `mui*`
+## GUI `mui*.*`
 
 The actual user interface abstraction, which allows the same code to target different platforms
-    - Smartphones/HTML5 `muiApp.*`
-    - TODO: WAP/HTML-MP `muiWap.*`
-    - TODO: ../j2me
+
+- Smartphones/HTML5 `muiApp.*`
+- TODO: WAP/HTML-MP `muiWap.*`
+- TODO: ../j2me
 
 ## Module loader `xmodule.js`
 
@@ -22,8 +23,8 @@ Modules are defined like this:
 
 Loading xmodu adds the following objects to the global scope, if none of them are defined:
 
-    - `require("`modulename`")` used for loading a module
-    - `exports` - before loading a module, this will be created as an empty object. Properties set on this object will be available when the module is `require`d.
+- `require("$YOUR_MODULE_NAME")` used for loading a module
+- `exports` - before loading a module, this will be created as an empty object. Properties set on this object will be available when the module is `require`d.
 
 When defining your module, `$YOUR_MODULE_NAME` should be the same as the name of the file containg the module.
 Also notice that if your module `require`s a module that is not loaded yet, `require` will throw an exception to stop execution of your module, load the required module, and then try to reinitialise your module by calling its function again, - thus exceptions from require should not be caught.
