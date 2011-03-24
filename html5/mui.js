@@ -20,7 +20,8 @@ __mui__ = {};
     var mui = __mui__;
     var global = this;
     var features = {
-        placeholder: true
+        placeholder: true,
+        telInput: true
     };
 
     function callbackError(e) {
@@ -133,24 +134,22 @@ __mui__ = {};
                   }
                 }
 
+                var tagAttr = {"class": type, "id": labelid, "name": name};
+                if(features.placeholder) {
+                    tagAttr.placeholder = jsonml.getAttr(node, "label");
+                }
                 if(type === "textbox") {
-                    var tagAttr = {"class": type, "id": labelid, "name": name};
-                    if(features.placeholder) {
-                      tagAttr.placeholder = jsonml.getAttr(node, "label");
-                    }
                     result.push(["textarea", tagAttr, ""]);                
                 } else if(type === "email" || type === "text") {
-                    var tagAttr = {"class": type, "id": labelid, "name": name};
-                    if(features.placeholder) {
-                      tagAttr.placeholder = jsonml.getAttr(node, "label");
-                    }
-                    result.push(["input", tagAttr, ""]);
+                    tagAttr.type = type;
+                    result.push(["input", tagAttr]);
                 } else if(type === "tel") {
-                  var tagAttr = {"class": type, "id": labelid, "name": name};
-                    if(features.placeholder) {
-                      tagAttr.placeholder = jsonml.getAttr(node, "label");
+                    if(features.telInput) {
+                        tagAttr.type = type;
+                    } else {
+                        tagATtr.type = "number";
                     }
-                    result.push(["input", tagAttr, ""]);
+                    result.push(["input", tagAttr]);
                 } else {
                     throw "unknown input type: " + type;
                 }
@@ -262,7 +261,7 @@ __mui__ = {};
             if(tag === "TEXTAREA" 
             || tag === "SELECT"
             || (tag === "INPUT" && 
-                    (type === "text" || type === "email" || type === "number"))) {
+                    (type === "text" || type === "email" || type === "number" || type === "tel"))) {
                 acc[name] = node.value;
             } else {
                 throw "unexpected form-like element: " + tag;
