@@ -1,3 +1,4 @@
+require("xmodule").def("jsonml",function(){
 // # JsonML
 //
 // Various functions for handling
@@ -320,3 +321,4 @@ function isArray(a) {
 }
 
 })(exports);
+});
