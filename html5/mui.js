@@ -19,7 +19,9 @@ __mui__ = {};
 (function(){
     var mui = __mui__;
     var global = this;
-
+    var features = {
+        placeholder: true
+    };
 
     function callbackError(e) {
                 mui.showPage(["page", {title: "Error"}, 
@@ -124,16 +126,31 @@ __mui__ = {};
                 }
 
                 var labelid = uniqId();
-                if(jsonml.getAttr(node, "label")) {
+                if(features.placeholder === true) {
+                } else {
+                  if(jsonml.getAttr(node, "label")) {
                     result.push(["div", {"class": "label"}, ["label", {"for": labelid}, jsonml.getAttr(node, "label"), ":"]]);
+                  }
                 }
 
                 if(type === "textbox") {
-                    result.push(["textarea", {"class": type, "id": labelid, "name": name}, ""]);
+                    var tagAttr = {"class": type, "id": labelid, "name": name};
+                    if(features.placeholder) {
+                      tagAttr.placeholder = jsonml.getAttr(node, "label");
+                    }
+                    result.push(["textarea", tagAttr, ""]);                
                 } else if(type === "email" || type === "text") {
-                    result.push(["input", {"class": type, "type": type, "id": labelid, "name": name}]);
+                    var tagAttr = {"class": type, "id": labelid, "name": name};
+                    if(features.placeholder) {
+                      tagAttr.placeholder = jsonml.getAttr(node, "label");
+                    }
+                    result.push(["input", tagAttr, ""]);
                 } else if(type === "tel") {
-                    result.push(["input", {"class": type, "type": "number", "id": labelid, "name": name}]);
+                  var tagAttr = {"class": type, "id": labelid, "name": name};
+                    if(features.placeholder) {
+                      tagAttr.placeholder = jsonml.getAttr(node, "label");
+                    }
+                    result.push(["input", tagAttr, ""]);
                 } else {
                     throw "unknown input type: " + type;
                 }
