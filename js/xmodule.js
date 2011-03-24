@@ -19,9 +19,15 @@
         var moduleFn = {};
         var loadStack = [];
         var path = "mui/"
+        var fetchReqs = {};
 
         // Asynchronous fetch 
         function fetch(name) {
+            if(fetchReqs[name]) {
+                return;
+            }
+            fetchReqs[name] = true;
+
             var scriptTag = document.createElement("script");
 
             // TODO: handling of path
@@ -31,12 +37,6 @@
             // with addional onreadystatechange...
             function callback() {
                 load(name);
-
-                var loading = loadStack;
-                loadStack = [];
-                while(loading.length > 0) {
-                    load(loading.pop());
-                }
             }
 
             /* seems to be standard */
@@ -73,6 +73,12 @@
 
                 modules[name] = global.exports;
                 delete global.exports;
+
+                var loading = loadStack;
+                loadStack = [];
+                while(loading.length > 0) {
+                    load(loading.pop());
+                }
                 return;
             }
             if(workaround[name]) {

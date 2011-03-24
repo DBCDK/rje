@@ -1,9 +1,7 @@
 require("xmodule").def("muiApp",function(){
 
-
-document.write('<link rel="stylesheet" href="mui/muiApp.css"></script>');
-
 jsonml = require("jsonml");
+
 
 if (!Object.create) {
     Object.create = function(o) {
@@ -61,7 +59,7 @@ if (!Object.create) {
         var fullUrl = url + "?" + argsUrlEncode(args);
         var scriptTag = document.createElement("script");
         scriptTag.setAttribute("src", fullUrl);
-        document.body.appendChild(scriptTag);
+        document.head.appendChild(scriptTag);
     }
     function argsUrlEncode(args) {
         var result = [];
@@ -94,11 +92,6 @@ if (!Object.create) {
         showHTML(pageTransform(page));
     };
     
-    var main = function() { throw "main function not defined. Remember to call mui.setMain" };
-    
-    exports.setMain = mui.setMain = function(fn) {
-        main = fn;
-    };
     uniqId = (function() {
         var id = 0;
         return function() {
@@ -288,6 +281,20 @@ if (!Object.create) {
     
     mui.form = {};
 
+    var initialised = false;
+    function muiInit() {
+        var scriptTag = document.createElement("link");
+        scriptTag.setAttribute("rel", "stylesheet");
+        scriptTag.setAttribute("href", "mui/muiApp.css");
+        document.head.appendChild(scriptTag);
+
+        document.body.innerHTML = ('<div id="container"><div id="current"></div><div id="prev"></div><div id="loading">loading...</div></div>');
+        initialised = true;
+        if(main) {
+            muiMain();
+        }
+    }
+
     function muiMain() {
         var muiObject = Object.create(mui);
         try {
@@ -297,9 +304,15 @@ if (!Object.create) {
         }
     }
 
-    
-    // FIXME
-    setTimeout(muiMain, 500);
+    var main;
 
-    document.write('<div id="container"><div id="current"></div><div id="prev"></div><div id="loading">loading...</div></div>');
+    exports.setMain = mui.setMain = function(fn) {
+        main = fn;
+        if(initialised) {
+            muiMain();
+        }
+    };
+
+    window.onload=muiInit;
+
 });
