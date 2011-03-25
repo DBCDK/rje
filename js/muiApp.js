@@ -1,6 +1,9 @@
 require("xmodule").def("muiApp",function(){
 
-    require("phonegap");
+    if(typeof localStorage === "undefined") {
+        require("phonegap");
+    }
+
     jsonml = require("jsonml");
 
     function envError(desc) {
@@ -289,11 +292,8 @@ require("xmodule").def("muiApp",function(){
         var scriptTag = document.createElement("link");
         scriptTag.setAttribute("rel", "stylesheet");
         scriptTag.setAttribute("href", "mui/muiApp.css");
-        if(typeof localStorage === "undefined" 
-        || !localStorage.getItem
-        || !localStorage.setItem
-        || !localStorage.removeItem
-        ) {
+
+        if(typeof localStorage === "undefined") {
             try {
                 if (typeof window.openDatabase == "undefined") {
                     navigator.openDatabase = window.openDatabase = DroidDB_openDatabase;
@@ -305,6 +305,7 @@ require("xmodule").def("muiApp",function(){
                 envError("localStorage: " + e);
             }
         }
+
         document.getElementsByTagName("head")[0].appendChild(scriptTag);
 
         document.getElementsByTagName("body")[0].innerHTML = ('<div id="container"><div id="current"></div><div id="prev"></div><div id="loading">loading...</div></div>');
