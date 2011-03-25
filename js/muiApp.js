@@ -299,7 +299,7 @@ require("xmodule").def("muiApp",function(){
                     navigator.openDatabase = window.openDatabase = DroidDB_openDatabase;
                     window.droiddb = new DroidDB();
                 }
-                mui.localStorage = navigator.localStorage = window.localStorage = new CupcakeLocalStorage();
+                mui.storage = navigator.localStorage = window.localStorage = new CupcakeLocalStorage();
                 PhoneGap.waitForInitialization("cupcakeStorage");
             } catch(e) {
                 envError("localStorage: " + e);
