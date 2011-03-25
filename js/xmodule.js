@@ -1,7 +1,7 @@
 (function() {
-    global = this;
 
-    if(true /* browser and no require/exports loader */) {
+    if(typeof require === "undefined") {
+        var global = this;
 
         global.require = function(name) {
             if(modules[name]) {
@@ -12,6 +12,7 @@
             }
             throw {missingModule: name};
         }
+        require.paths = [];
 
         // function to make certain requires behav
         var failedModules = {};

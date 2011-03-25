@@ -83,6 +83,7 @@ if (!Object.create) {
     };
 
     
+    mui.session = {};
     // # Mobile user interface - html5 version
     exports.showPage = mui.showPage = function(page) {
         gId("loading").style.top = "-50px";
@@ -279,7 +280,6 @@ if (!Object.create) {
     }
     
     
-    mui.form = {};
 
     var initialised = false;
     function muiInit() {
@@ -297,6 +297,8 @@ if (!Object.create) {
 
     function muiMain() {
         var muiObject = Object.create(mui);
+        muiObject.form = {};
+
         try {
             main(muiObject);
         } catch(e) {
