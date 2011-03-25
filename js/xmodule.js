@@ -3,6 +3,21 @@
     if(typeof require === "undefined") {
         var global = this;
 
+
+        if(!Object.create) {
+            Object.create = function(o) {
+                var C = function () {};
+                C.prototype = o;
+                return new C;
+            };
+        }
+        if(typeof(console) === "undefined") {
+            alert("Console not available");
+            console = {};
+            console.log = function() {};
+        }
+        console.log("loading xmodule");
+
         global.require = function(name) {
             if(modules[name]) {
                 return modules[name];
@@ -44,7 +59,8 @@
             scriptTag.onload = callback;
             /* IE-6/7 */
             scriptTag.onreadystatechange = function() { this.readyState === 'complete' && callback(); };
-            document.head.appendChild(scriptTag);
+            //document.head.appendChild(scriptTag);
+            document.getElementsByTagName("head")[0].appendChild(scriptTag);
         }
 
         function load(name) {

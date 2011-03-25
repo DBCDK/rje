@@ -1,17 +1,19 @@
 require("xmodule").def("muiApp",function(){
 
-jsonml = require("jsonml");
+    jsonml = require("jsonml");
 
+    function envError(desc) {
+        desc = "Runtime environment is missing something: " + desc;
+        alert(desc);
+        console.log(desc);
+        throw desc;
+    }
 
-if (!Object.create) {
-    Object.create = function(o) {
-        var C = function () {};
-        C.prototype = o;
-        return new C;
-    };
-}
+    if(typeof Object.create !== "function") {
+        envError("Object.create");
+    }
 
-    var global = (function () { return this })();
+    var global = window;
     global.__mui__ = {};
     var mui = global.__mui__;
 
@@ -59,7 +61,7 @@ if (!Object.create) {
         var fullUrl = url + "?" + argsUrlEncode(args);
         var scriptTag = document.createElement("script");
         scriptTag.setAttribute("src", fullUrl);
-        document.head.appendChild(scriptTag);
+        document.getElementsByTagName("head")[0].appendChild(scriptTag);
     }
     function argsUrlEncode(args) {
         var result = [];
@@ -286,9 +288,25 @@ if (!Object.create) {
         var scriptTag = document.createElement("link");
         scriptTag.setAttribute("rel", "stylesheet");
         scriptTag.setAttribute("href", "mui/muiApp.css");
-        document.head.appendChild(scriptTag);
+        if(typeof localStorage === "undefined" 
+        || !localStorage.getItem
+        || !localStorage.setItem
+        || !localStorage.removeItem
+        ) {
+            try {
+                if (typeof window.openDatabase == "undefined") {
+                    navigator.openDatabase = window.openDatabase = DroidDB_openDatabase;
+                    window.droiddb = new DroidDB();
+                }
+                mui.localStorage = navigator.localStorage = window.localStorage = new CupcakeLocalStorage();
+                PhoneGap.waitForInitialization("cupcakeStorage");
+            } catch(e) {
+                envError("localStorage: " + e);
+            }
+        }
+        document.getElementsByTagName("head")[0].appendChild(scriptTag);
 
-        document.body.innerHTML = ('<div id="container"><div id="current"></div><div id="prev"></div><div id="loading">loading...</div></div>');
+        document.getElementsByTagName("body")[0].innerHTML = ('<div id="container"><div id="current"></div><div id="prev"></div><div id="loading">loading...</div></div>');
         initialised = true;
         if(main) {
             muiMain();
@@ -315,6 +333,13 @@ if (!Object.create) {
         }
     };
 
-    window.onload=muiInit;
+    // This works in more cases than window.onload
+    (function waitForReady() {
+        if(document.readyState !== "loading") {
+            muiInit();
+        } else {
+            setTimeout(waitForReady, 20);
+        }
+    })();
 
 });
