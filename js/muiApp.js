@@ -1,5 +1,6 @@
 require("xmodule").def("muiApp",function(){
 
+    require("phonegap");
     jsonml = require("jsonml");
 
     function envError(desc) {
