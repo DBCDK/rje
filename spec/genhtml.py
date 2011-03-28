@@ -12,8 +12,10 @@ for test in glob.glob("*.js"):
     print '<script src="' + test + '"></script>'
 print """
 </head><body><script>
+  setTimeout(function() {
     jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
     jasmine.getEnv().execute();
+  }, 300);
 </script></body></html>
 """
 

@@ -7,15 +7,56 @@ Applications are written in a subset of JavaScript in order to be able to run on
 
 # Modules
 
-## Mobile User Interface `mui.js`
+## Mobile User Interface -  `mui*.js`
 
-TODO: more docs here...
 
-The actual user interface abstraction, which allows the same code to target different platforms
+The start of the program is defined using the `setMain` function which takes a Mui Callback as a parameter. For example:
 
-- Smartphones/HTML5 `muiApp.*`
-- TODO: WAP/HTML-MP `muiWap.*`
-- TODO: ../j2me
+    require('mui').setMain(main);
+
+    function main(mui) {
+        mui.showPage(["page", ["text", "Hello world"]]);
+    }
+
+Mui Callbacks are the functions that are passed to Mui, and which will be called, when new content are needed to be shown to the user, for example when the program starts and when the user submits a form. 
+A Mui Callback is an unary function, taking a Mui Object as a parameter. 
+When a callback is called, it must call a method on the Mui Object which shows new content (currently only mui.showPage(...)).
+
+Mui Objects are only available to callbacks, and contains the following properties:
+
+- `mui.session` is an initially empty object where the application can store data, which will be available in futher callbacks in the same session.
+- `mui.storage.getItem(key)` retrieve a value for a given key in a persistent storage linked to the current device.
+- `mui.storage.setItem(key, value)` sets an item in the storage. The value should be JSON-serialisable.
+- `mui.storage.removeItem(key)` deletes an item in the storage.
+- `mui.loading()` indicates loading activity to the user.
+- `mui.callJsonpWebservice(url, callbackParameterName, args, callback)` calls a web service. `url` is the url of the web service, `callbackParameterName` is the parameter to the service which names the [padding function](http://en.wikipedia.org/wiki/JSONP), `args` is an object of arguments which are to be passed to the url, and `callback` is an unary JavaScript function which will be called with result of the web service, or `undefined` if the service fails or times out.
+- `mui.showPage(muiPage)` displays a page that the user can interact with.
+- `mui.form` contains results of form elements that the user interacted with on the previous page, if applicable.
+
+Mui Pages are passed to `showPage`, and are user interface descriptions written in [JsonML array form](http://en.wikipedia.org/wiki/JsonML) with the addition that JavaScript-functions may also be values some of the places. Mui Pages has the following elements:
+
+- `page` is the tag type of the root elements, with the following attributes:
+    - `title` is shown on the top of the page, optional
+- `section` groups other elements
+- `text` is displayed text
+- `input` enables the user to input a value. It has the following attributes:
+    - `label` optional label shown with the input element
+    - `type` indicates the kind of input, - it is mandatory and must be one of the following:
+        - `text` a line of text
+        - `textbox` some lines of text
+        - `tel`ephone number
+        - `email` address
+    - `name` is used to reference the result in `mui.form`, mandatory
+    - TODO: `validateFn` a JavaScript function that will be called with the content of the input, and should return truthy if the input is valid
+    - TODO: `validateHint` will be shown when the user enters an invalid value in the input
+- `choice` a collection of options, between which the user must select. Only `option` nodes are allowed as child elements. It has the following attributes:
+    - `label` optional label shown with the choice group
+    - `name` is used to reference the result in `mui.form`, mandatory
+- `option` an option the user can choose.  Must be child elements of select. It has the following attributes:
+    - `value` the value this choice will return to the program in the `mui.form`.
+- `button` is a clickable button with the following attributes:
+    - `fn` the Mui Callback function to invoke when the button is pressed.
+
 
 ## Module loader `xmodule.js`
 
@@ -30,7 +71,7 @@ Modules are defined like this:
     });
 
 
-Loading xmodu adds the following objects to the global scope, if none of them are defined:
+Loading xmodule adds the following objects to the global scope, if none of them are defined:
 
 - `require("$YOUR_MODULE_NAME")` used for loading a module
 - `exports` - before loading a module, this will be created as an empty object. Properties set on this object will be available when the module is `require`d.
