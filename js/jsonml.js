@@ -22,7 +22,7 @@ require("xmodule").def("jsonml",function(){
 // 
 // Known deficiencies: CDATA is not supported, will accept even 
 // non-well-formed documents, <?... > <!... > are not really handled, ...
-exports.fromXml = function(xml) {
+function fromXml(xml) {
     if(typeof(xml) !== "string") {
         JsonML_Error( 
             "Error: jsonml.parseXML didn't receive a string as parameter");
@@ -149,6 +149,17 @@ exports.fromXml = function(xml) {
     return tag;
 };
 
+// The exported xml parser
+exports.fromXml = function(xml) {
+    // find the actual root element, ie. " <foo /> " will be parsed to [" ", ["foo"], " "],
+    // so skip the parsed until we find an array.
+    var parsed = fromXml(xml);
+    for(var i=0;i<parsed.length;++i) {
+        if(parsed[i] instanceof Array) {
+            return parsed[i];
+        }
+    }
+}
 
 
 // ## XML generation

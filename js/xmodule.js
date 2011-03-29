@@ -18,27 +18,27 @@
             }
             throw {missingModule: name};
         }
-        require.paths = [];
+        require.paths = [defaultPath];
 
         // function to make certain requires behav
         var failedModules = {};
         var workaround = {
             phonegap: {
-                url: "mui/external/phonegap.0.9.4.js",
+                url: "external/phonegap.0.9.4",
                 fn: function() {
                     exports = PhoneGap;
                 },
             },
             "es5-shim": {
-                url: "mui/external/es5-shim.js",
+                url: "external/es5-shim",
                 fn: function() { }
             },
             json2: {
-                url: "mui/external/json2.js",
+                url: "external/json2",
                 fn: function() { }
             },
             underscore: {
-                url: "mui/external/underscore.js",
+                url: "external/underscore",
                 fn: function() {
                     exports = _;
                     _._ = _;
@@ -49,7 +49,6 @@
         var loadStack = [];
         var defaultPath = "mui/"
         var fetchReqs = {};
-        require.paths = [defaultPath];
 
         // Asynchronous fetch 
         function fetch(name) {
@@ -67,10 +66,12 @@
             }
 
             // TODO: handling of path
-            var url = require.paths[0] + name + ".js";
+            var url = name;
             if(workaround[name] && workaround[name].url) {
                 url = workaround[name].url;
             }
+            url = require.paths[0] + url + ".js";
+
             scriptTag.src = url + "?" + Math.random();
 
             // Currently no IE 6/7 support - could be implemented

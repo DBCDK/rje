@@ -1,7 +1,7 @@
 require("xmodule").def("jsonml.spec",function(){
 require("jsonml");
 
-describe("jsonml test", function() {
+describe("jsonml", function() {
   var a, b;
   var html_x, html_j;
   var jsonml;
@@ -13,13 +13,14 @@ describe("jsonml test", function() {
     jsonml = require("jsonml");
   });
 
-  it("parse xml", function() {
+  it("outputs xml", function() {
+    expect(jsonml.toXml(html_j)).toEqual(html_x);
+  });
+
+  it("parses xml", function() {
     expect(jsonml.fromXml(html_x)).toEqual(html_j);
   });
 
-  it("output xml", function() {
-    expect(jsonml.toXml(html_j)).toEqual(html_x);
-  });
 });
 
 });
