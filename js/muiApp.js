@@ -35,59 +35,16 @@ require("xmodule").def("muiApp",function(){
                 throw e;
     }
 
-    exports.loading = mui.loading = function() {
+    mui.loading = function() {
         window.scroll(0,0);
         gId("loading").style.top = "50px";
     };
 
-    exports.loading = mui.callJsonpWebservice = function(url, callbackParameterName, args, callback) {
-        // clone args, as we want to add a jsonp-callback-name-property
-        // without altering the original parameter
-        args = Object.create(args); 
 
-        // temporary global callback function, that deletes itself after used
-        var callbackName = uniqId();
-        var callbackFn = global[callbackName] = function(data) {
-            if(global.hasOwnProperty(callbackName)) {
-                delete global[callbackName];
-                try {
-                    callback(data);
-                } catch(e) {
-                    callbackError(e);
-                }
-            }
-        }
-        // if we haven't got an answer after one minute, assume that an error has occured, 
-        // and call the callback, without any arguments.
-        setTimeout(callbackFn, 60000);
+    mui.callJsonpWebservice = Q.callJsonpWebservice;
 
-        args[callbackParameterName] = callbackName;
-
-	Q.executeRemote(url + "?" + argsUrlEncode(args));
-    }
-    function argsUrlEncode(args) {
-        var result = [];
-        for(name in args) {
-            result.push(escapeFixed(name) + "=" + escapeFixed(args[name]));
-        }
-        return result.join("&");
-    }
-
-    // Fixed uri escape. JavaScripts escape, encodeURI, ... are buggy.
-    function escapeFixed(uri) {
-        uri = uri.replace(/[^a-zA-Z0-9-_~.]/g, function(c) {
-            c = c.charCodeAt(0);
-            if(c > 255) {
-                return escapeFixed("&#" + c + ";");
-            } else {
-                return "%" + c.toString(16);
-            }
-        });
-        return uri;
-    };
-
-    
     mui.session = {};
+
     // # Mobile user interface - html5 version
     exports.showPage = mui.showPage = function(page) {
         gId("loading").style.top = "-50px";
