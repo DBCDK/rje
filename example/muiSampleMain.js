@@ -1,8 +1,14 @@
+// # Sample Mui Application
+
+// define as module using the xmodule system for
+// module support in both browsers and ssjs
 require("xmodule").def("muiSampleMain",function(){
 
+// bind the main function
 require("muiApp").setMain(main);
 
 function main(mui) {
+    // sample ui-page
     mui.showPage(["page", 
         ["section",
             ["input", {"type": "textbox", "label": "cql query", "name": "query"}], 
@@ -14,8 +20,13 @@ function main(mui) {
             ["option", {"value": "2"}, "b"]
         ]]);
 }
+
+
 function search(mui) {
+    // indicat that we are loading something
     mui.loading();
+
+    // jsonp callback
     mui.callJsonpWebservice("http://opensearch.addi.dk/1.0/", "callback", {
         action: "search",
         query: mui.form.query,

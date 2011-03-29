@@ -1,32 +1,17 @@
+// # Mui HTML5 Backend
 require("xmodule").def("muiApp",function(){
-    Q = require("Q");
 
+    Q = require("Q");
+    jsonml = require("jsonml");
     if(typeof localStorage === "undefined") {
         require("phonegap");
     }
 
-    jsonml = require("jsonml");
+    // mui object, arguments to Mui Callbacks will be clones of this.
+    // Also added as a global `__mui__`, where we store named callbacks.
+    var mui = global.__mui__ = {};
 
-    function envError(desc) {
-        desc = "Runtime environment is missing something: " + desc;
-        alert(desc);
-        console.log(desc);
-        throw desc;
-    }
-
-    if(typeof Object.create !== "function") {
-        envError("Object.create");
-    }
-
-    var global = window;
-    global.__mui__ = {};
-    var mui = global.__mui__;
-
-    var features = {
-        placeholder: true,
-        telInput: true
-    };
-
+    // Error to show, when something goes wrong
     function callbackError(e) {
                 mui.showPage(["page", {title: "Error"}, 
                     ["text", e.toString()],
@@ -35,25 +20,29 @@ require("xmodule").def("muiApp",function(){
                 throw e;
     }
 
+    // Jsonp access is just the function defined in Q
+    mui.callJsonpWebservice = Q.callJsonpWebservice;
+
+    // In a web environment, the session object is just a simple object.
+    mui.session = {};
+
+    // move a loading indicator onto the screen
     mui.loading = function() {
         window.scroll(0,0);
         gId("loading").style.top = "50px";
     };
 
-
-    mui.callJsonpWebservice = Q.callJsonpWebservice;
-
-    mui.session = {};
-
-    // # Mobile user interface - html5 version
     exports.showPage = mui.showPage = function(page) {
+        // hide loading indicator
         gId("loading").style.top = "-50px";
+
         if(page[0] !== "page") {
             throw("Parameter to showPage must be a jsonml 'page'");
         } 
         showHTML(pageTransform(page));
     };
     
+    // Generate an uniq id - probably move this to Q
     uniqId = (function() {
         var id = 0;
         return function() {
@@ -61,6 +50,12 @@ require("xmodule").def("muiApp",function(){
         }
     })();
     
+    // feature detection, should be merged with Q.features  
+    var features = {
+        placeholder: true,
+        telInput: true
+    };
+
     function pageTransform(page) {
         var handlers = {
             section: function(html, node) {
@@ -171,28 +166,39 @@ require("xmodule").def("muiApp",function(){
         return [["div", {"class":"header"}, title], html, ["div", {"class":"contentend"}, " "]];
     }
 
+    // calculate height of dom element
     function height(dom) {
         return document.defaultView.getComputedStyle(dom, "").getPropertyValue("height");
     }
     
+    // shorthand
     function gId(name) {
         return document.getElementById(name);
     }
     
+    // shorthand
     function domRemove(node) {
         node.parentNode.removeChild(node);
     }
     
+    // html is a list of jsonml arrays, which is transformed to xml,
+    // and inserted in a div in the body. We have a current and a next-div
+    // to be able to make a slide effect.
     function showHTML(html) {
         next = document.createElement("div");
         next.setAttribute("id", "next");
         next.innerHTML = html.map(jsonml.toXml).join('');
         var current = gId("current");
         gId("container").insertBefore(next, current);
+        // we have a relative layout, so when inserting a new div
+        // in the beginning, we must also move the next div up,
+        // such that it is at the top.
         current.style.top = "-" + height(next);
         setTimeout(slidein, 0);
     }
     
+    // fancy looking slidein effect.
+    // Remove the prev-div, and then move current to prev, and next to current.
     function slidein() {
         window.scroll(0,0);
     
@@ -202,10 +208,12 @@ require("xmodule").def("muiApp",function(){
     
         var next = gId("next");
         next.setAttribute("id", "current");
-    
+        // make sure that the container can contain the largest of the divs
         gId("container").style.height = Math.max(parseInt(height(next), 10), window.innerHeight) + "px";
     }
 
+    // run through the dom and extract filled out
+    // input values.
     function formExtract(node, acc) {
         var name = node.getAttribute && node.getAttribute("name");
         var type = node.getAttribute && node.getAttribute("type");
@@ -257,7 +265,8 @@ require("xmodule").def("muiApp",function(){
                 mui.storage = navigator.localStorage = window.localStorage = new CupcakeLocalStorage();
                 PhoneGap.waitForInitialization("cupcakeStorage");
             } catch(e) {
-                envError("localStorage: " + e);
+                alert(e);
+                throw e;
             }
         }
 

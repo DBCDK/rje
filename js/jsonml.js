@@ -1,6 +1,5 @@
-require("xmodule").def("jsonml",function(){
 // # JsonML
-//
+  
 // Various functions for handling
 // jsonml in array form.
 // For more info on jsonml,
@@ -11,7 +10,7 @@ require("xmodule").def("jsonml",function(){
 // Not depending on any libraries, and also
 // avoid regular expressions to be possible to 
 // run on javascript-subsets on j2me devices.
-(function (exports) {
+require("xmodule").def("jsonml",function(){
 
 // ## XML parser
 
@@ -331,5 +330,4 @@ function isArray(a) {
     return a !== null && typeof(a) === "object"  && a.constructor === Array;
 }
 
-})(exports);
 });
