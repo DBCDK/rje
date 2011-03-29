@@ -8,7 +8,7 @@ require("xmodule").def("Q.spec",function(){
 	var Q = require("Q");
 	var serviceUrl = "http://opensearch.addi.dk/1.0/?action=search&query=mui&source=bibliotekdk&outputType=json"
 	var serviceurlCallback = serviceUrl + "&callback=QSpecCallback";
-	var service = "http://opensearch.add.dk/1.0/";
+	var service = "http://opensearch.addi.dk/1.0/";
 	var serviceArgs = {action: "search", query: "mui", source: "bibliotek.dk", outputType: "json"};
 	var cbResult;
 
@@ -38,7 +38,7 @@ require("xmodule").def("Q.spec",function(){
 	});
 
 	it("encodes url parameters", function() {
-	    expect(Q.encodeUrlParameters({foo:1,bar:"42"})).toEqual("");
+	    expect(Q.encodeUrlParameters({foo:1,bar:"42"})).toEqual("foo=1&bar=42");
 	});
 
 	it("escapes uri", function() {
