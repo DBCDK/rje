@@ -1,7 +1,9 @@
 (function() {
 
     if(typeof require === "undefined") {
-        var global = this;
+	if(typeof global === "undefined") {
+	    global = this;
+	}
 
         if(typeof(console) === "undefined") {
             alert("Console not available");
@@ -29,8 +31,15 @@
                 url: "external/phonegap.0.9.4",
                 fn: function() {
                     exports = PhoneGap;
-                },
+                }
             },
+	    jasmine: {
+		url: "external/jasmine",
+	    },
+	    "jasmine-html": {
+		url: "external/jasmine-html",
+		fn: function() { }
+	    },
             "es5-shim": {
                 url: "external/es5-shim",
                 fn: function() { }

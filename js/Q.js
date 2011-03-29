@@ -1,6 +1,4 @@
 require("xmodule").def("Q",function(){
-    var global = exports.global = function() { return this } ();
-
     var features = exports.features = {
 	browser: typeof navigator !== "undefined",
 	nodejs: typeof process !== "undefined" && process.versions.node !== undefined
