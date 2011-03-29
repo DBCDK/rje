@@ -1,4 +1,5 @@
 require("xmodule").def("muiApp",function(){
+    Q = require("Q");
 
     if(typeof localStorage === "undefined") {
         require("phonegap");
@@ -62,10 +63,7 @@ require("xmodule").def("muiApp",function(){
 
         args[callbackParameterName] = callbackName;
 
-        var fullUrl = url + "?" + argsUrlEncode(args);
-        var scriptTag = document.createElement("script");
-        scriptTag.setAttribute("src", fullUrl);
-        document.getElementsByTagName("head")[0].appendChild(scriptTag);
+	Q.executeRemote(url + "?" + argsUrlEncode(args));
     }
     function argsUrlEncode(args) {
         var result = [];

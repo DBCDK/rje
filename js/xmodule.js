@@ -18,7 +18,9 @@
             }
             throw {missingModule: name};
         }
-        require.paths = [defaultPath];
+
+        var defaultPath = "mui/"
+	require.paths = [defaultPath];
 
         // function to make certain requires behav
         var failedModules = {};
@@ -47,7 +49,6 @@
         };
         var moduleFn = {};
         var loadStack = [];
-        var defaultPath = "mui/"
         var fetchReqs = {};
 
         // Asynchronous fetch 
