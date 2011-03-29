@@ -1,0 +1,15 @@
+body {
+    background-color: #ffffff;
+    font-family: sans-serif;
+    line-height: 130%;
+    margin: 0% 10% 0% 10%;
+}
+div.logo{
+    text-align: center;
+}
+div.menu{
+    text-align: center;
+}
+div.menu span {
+    margin: 0 1ex 0 1ex;
+}
