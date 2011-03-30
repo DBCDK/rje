@@ -1,6 +1,6 @@
-# Mobile user interface
+# Mobile User Interface
 
-The goal of this project is to create a cross-platform mobile user interface that runs both as a html5-app(android/iphone/palm/smartphones), j2me-midlet(most other phones), and a wap2-mobile-site.
+Mui is a cross-platform mobile user interface intended to run both as a HTML5 App (android/iphone/and other smartphones), a Java Micro Edition Midlet (most featurephones), and a WAP2 mobile site (mostly anything else).
 
 Applications are written in a subset of JavaScript in order to be able to run on all platforms.
 
@@ -10,7 +10,7 @@ Applications are written in a subset of JavaScript in order to be able to run on
 ## Mobile User Interface -  `mui*.js`
 
 
-The start of the program is defined using the `setMain` function which takes a Mui Callback as a parameter. For example:
+The program starts with the Mui Callback function passed to `setMain(...)`.  A minimal program could be defined like:
 
     require('mui').setMain(main);
 
@@ -18,8 +18,8 @@ The start of the program is defined using the `setMain` function which takes a M
         mui.showPage(["page", ["text", "Hello world"]]);
     }
 
-Mui Callbacks are the functions that are passed to Mui, and which will be called, when new content are needed to be shown to the user, for example when the program starts and when the user submits a form. 
-A Mui Callback is an unary function, taking a Mui Object as a parameter. 
+Mui Callbacks are the functions that are passed to Mui. They will be called, when new content are needed to be shown to the user, for example when the program starts or when the user submits a form. 
+A Mui Callback is an unary function, taking a Mui Object as the parameter. 
 When a callback is called, it must call a method on the Mui Object which shows new content (currently only mui.showPage(...)).
 
 Mui Objects are only available to callbacks, and contains the following properties:
@@ -33,7 +33,7 @@ Mui Objects are only available to callbacks, and contains the following properti
 - `mui.showPage(muiPage)` displays a page that the user can interact with.
 - `mui.form` contains results of form elements that the user interacted with on the previous page, if applicable.
 
-Mui Pages are passed to `showPage`, and are user interface descriptions written in [JsonML array form](http://en.wikipedia.org/wiki/JsonML) with the addition that JavaScript-functions may also be values some of the places. Mui Pages has the following elements:
+Mui Pages are user interface descriptions passed that are to `showPage`. They are written in [JsonML array form](http://en.wikipedia.org/wiki/JsonML) with the addition that JavaScript-functions may also be values some of the places. Mui Pages has the following elements:
 
 - `page` is the tag type of the root elements, with the following attributes:
     - `title` is shown on the top of the page, optional
@@ -60,7 +60,7 @@ Mui Pages are passed to `showPage`, and are user interface descriptions written 
 
 ## Module loader `xmodule.js`
 
-Module system designed, such that modules can be used unaltered,
+The module system is designed, such that modules can be used unaltered
 in the browser, in LightScript, and also with the CommonJS module system.
 
 Modules are defined like this:
@@ -71,10 +71,12 @@ Modules are defined like this:
     });
 
 
-Loading xmodule adds the following objects to the global scope, if none of them are defined:
+Loading `xmodule` adds the following objects to the global scope:
 
 - `require("$YOUR_MODULE_NAME")` used for loading a module
 - `exports` - before loading a module, this will be created as an empty object. Properties set on this object will be available when the module is `require`d.
+
+It also does work to ensures that we are running in a sane JavaScript environment, - it loads `es5-shim` and `JSON` if we are on an old browser/js-engine.
 
 When defining your module, `$YOUR_MODULE_NAME` should be the same as the name of the file containg the module.
 Also notice that if your module `require`s a module that is not loaded yet, `require` will throw an exception to stop execution of your module, load the required module, and then try to reinitialise your module by calling its function again, - thus exceptions from require should not be caught.
@@ -95,7 +97,7 @@ This module implements the following functions:
 
 ## Various utility functions `Q.js`
 
-The `Q` module contains various utility functions. *NOTICE: this API is highly unstable and for internal use, do not rely on it*.
+The `Q` module contains various utility functions. *NOTICE: this API is not final and for internal use at the moment, do not rely on it for external components yet*.
 
 - `Q.features` an object, containing som info on the environment, ie.:
     - `Q.features.nodejs` is truthy if we are in node
