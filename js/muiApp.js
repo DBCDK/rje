@@ -178,7 +178,7 @@ require("xmodule").def("muiApp",function(){
     
     // shorthand
     function domRemove(node) {
-        node.parentNode.removeChild(node);
+        node && node.parentNode.removeChild(node);
     }
     
     // html is a list of jsonml arrays, which is transformed to xml,
@@ -197,12 +197,15 @@ require("xmodule").def("muiApp",function(){
         setTimeout(slidein, 0);
     }
     
+    function removePrev() {
+        domRemove(gId("prev"));
+    }
     // fancy looking slidein effect.
     // Remove the prev-div, and then move current to prev, and next to current.
     function slidein() {
         window.scroll(0,0);
     
-        domRemove(gId("prev"));
+        removePrev();
     
         gId("current").setAttribute("id", "prev");
     
@@ -210,6 +213,7 @@ require("xmodule").def("muiApp",function(){
         next.setAttribute("id", "current");
         // make sure that the container can contain the largest of the divs
         gId("container").style.height = Math.max(parseInt(height(next), 10), window.innerHeight) + "px";
+        setTimeout(removePrev, 500);
     }
 
     // run through the dom and extract filled out
