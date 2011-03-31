@@ -1,6 +1,8 @@
 import com.solsort.lightscript.*;
+import java.io.*;
 
 public class Mui implements Function {
+    static int dummy = 0;
 
     Object closure;
     int fn;
@@ -17,7 +19,12 @@ public class Mui implements Function {
         }
         case 1: { // load
             LightScript ls = (LightScript) closure;
-            ls.eval(ls.getClass().getResourceAsStream("/js/" + args[argpos+1] + ".js"));
+            String name = "/js/" + args[argpos+1] + ".js";
+            InputStream is = ls.getClass().getResourceAsStream(name);
+            if(is==null) {
+                throw new LightScriptException("Error, could not load " + name);
+            }
+            ls.eval(is);
             return ls.UNDEFINED;
         }
         case 2: { // typeof

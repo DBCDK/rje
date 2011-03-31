@@ -1,8 +1,6 @@
 // # Mui main module
 // Mobile user interface
-console.log("load mui");
 require("xmodule").def("mui", function() {
-console.log("In mui!");
 
 Q = require("Q");
 
@@ -14,7 +12,7 @@ if(Q.features.nodejs) {
     exports.setMain = require("muiWap").setMain;
 } else if(Q.features.browser) {
     exports.setMain = require("muiApp").setMain;
-} else if(Q.features.LightScript) {
+} else if(Q.features.lightscript) {
     exports.setMain = require("muiMidp").setMain;
 } else {
     throw "unsupported environment";

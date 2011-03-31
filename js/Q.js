@@ -1,6 +1,5 @@
 require("xmodule").def("Q",function(){
 
-    console.log("In Q!");
     var features = exports.features = {
         browser: typeof(navigator) !== "undefined",
         nodejs: typeof(process) !== "undefined" && process.versions.node !== undefined,

@@ -1,6 +1,5 @@
 require("xmodule").def("main",function(){
-require("mui").setMain(main);
-console.log("In main.js!");
+require("mui");
 
 function main(mui) {
   mui.showPage(["page", {title: "Sp\xf8rg biblioteket"},
@@ -64,4 +63,6 @@ function ask(mui) {
       }
     });
 }
+
+require("mui").setMain(main);
 });
