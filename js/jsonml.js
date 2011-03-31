@@ -201,7 +201,7 @@ function toXmlAcc(jsonml, acc) {
             acc.push(" />");
         }
     } else {
-        xmlEscape(jsonml.toString(), acc);
+        xmlEscape(String(jsonml), acc);
     }
 }
 

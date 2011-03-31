@@ -2,6 +2,21 @@ LS = LightScript
 DEPS = com/solsort/*/*
 BACKUP=
 
+
+muirun: mui/mui.jar
+	java -jar external_dependencies/microemulator.jar mui/mui.jar
+
+mui/mui.jar: mui/* $(DEPS)
+	cd mui; ln -sf ../com .
+	cd mui; javac -source 1.2 -classpath .:../external_dependencies/midpapi10.jar:../external_dependencies/cldcapi10.jar *.java
+	cd mui; jar -cvfm ../examples/in.jar manifest com/solsort/*/*.class *.class script.ls
+	cd mui; rm -f com
+	java -jar external_dependencies/proguard.jar @examples/midlets.pro
+	mv examples/out.jar mui/mui.jar
+
+mui: mui/mui.jar
+	java -jar external_dependencies/microemulator.jar mui/mui.jar
+
 run: examples/Main.class examples/test.js
 	java examples/Main examples/test.js
 examples/Main.class: $(DEPS)
