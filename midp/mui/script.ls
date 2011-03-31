@@ -1,4 +1,7 @@
-console.log();
-console.log(123);
-load("test");
-console.log("Hello world", [1,2,3,4], {"a":1, "b":2});
+load("xmodule");
+
+console.log({a: 123, b:12});
+require("xmodule").def('testing', function() {
+    console.log("testing");
+    console.log(require("test").test);
+});

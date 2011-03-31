@@ -257,7 +257,7 @@ final class Code implements Function {
 
     private static Object unop(LightScript ls, Object stack[], int sp, String name) throws LightScriptException {
         Object o = ls.getMethod(stack[sp].getClass(), name);
-        if (o!= LightScript.UNDEFINED) {
+        if (o != LightScript.UNDEFINED) {
             o = ((Function) o).apply(stack, sp, 0);
         }
         return o;

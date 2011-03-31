@@ -1,6 +1,29 @@
 (function() {
+    if(typeof(require) === "undefined" && typeof(load) !== "undefined" ) {
+        // LightScript
+        var modules = {};
+        function def(name, fn) {
+            fn();
+        }
 
-    if(typeof(require) === "undefined") {
+        modules.xmodule = { "def": def };
+
+        require = function(name) {
+            if(!modules[name]) {
+                var prev = exports;
+                exports = {};
+                load(name);
+                modules[name] = exports;
+                exports = prev;
+            }
+            return modules[name];
+        }
+
+
+
+    } else if(typeof(require) === "undefined") {
+        // Browser
+
         if(typeof(global) === "undefined") {
             global = this;
         }
@@ -159,10 +182,10 @@
         var modules = { xmodule: { def: def } };
 
     } else {
+        // Node
         exports.def = function(name, fn) {
             fn();
         };
         exports.setPath = function() { };
     }
 })();
-

@@ -1,1 +1,1 @@
-rm -rf com *.class *.jar 
+rm -rf com/solsort/*/*.class *.class *.jar 

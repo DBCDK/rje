@@ -502,6 +502,14 @@ public final class Util implements Function {
             }
             return result;
         }
+        case 40: { // String.toBool
+            LightScript ls = (LightScript) closure;
+            return "".equals(args[argpos])?ls.FALSE:ls.TRUE;
+        }
+        case 41: { // Object.toBool
+            LightScript ls = (LightScript) closure;
+            return ls.TRUE;
+        }
         }
         return LightScript.UNDEFINED;
     }
@@ -540,6 +548,7 @@ public final class Util implements Function {
         ls.setMethod(objectClass, "__setter__", new Util(9, ls.getMethod(objectClass, "__setter__")));
         ls.setMethod(objectClass, "hasOwnProperty", new Util(19));
         ls.setMethod(objectClass, "__iter__", new Util(21));
+        ls.setMethod(objectClass, "toBool", new Util(41, ls));
 
         Hashtable array = new Hashtable();
         ls.set("Array", new Util(6, array));
@@ -564,6 +573,7 @@ public final class Util implements Function {
         ls.setMethod(stringClass, "slice", new Util(27, ls));
         ls.setMethod(stringClass, "charCodeAt", new Util(31, ls));
         ls.setMethod(stringClass, "concat", new Util(33, ls));
+        ls.setMethod(stringClass, "toBool", new Util(40, ls));
         string.put("fromCharCode", new Util(34, ls));
 
         Hashtable tuple = new Hashtable();

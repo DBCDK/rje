@@ -1,14 +1,9 @@
-import javax.microedition.lcdui.Display;
-import javax.microedition.midlet.MIDlet;
 import com.solsort.lightscript.*;
-import com.solsort.mobile.*;
 
 public class Mui implements Function {
 
     Object closure;
     int fn;
-    static Display disp;
-
     public Object apply(Object[] args, int argpos, int argcount) throws LightScriptException {
         switch (fn) {
         case 0: { // console.log
@@ -22,8 +17,17 @@ public class Mui implements Function {
         }
         case 1: { // load
             LightScript ls = (LightScript) closure;
-            ls.eval(ls.getClass().getResourceAsStream("js/" + args[argpos+1] + ".js"));
+            ls.eval(ls.getClass().getResourceAsStream("/js/" + args[argpos+1] + ".js"));
             return ls.UNDEFINED;
+        }
+        case 2: { // typeof
+            LightScript ls = (LightScript) closure;
+            Object o = args[argpos+1];
+            if(o == ls.UNDEFINED) {
+                return "undefined";
+            } else {
+                return "[some type]";
+            }
         }
         }
         return null;
@@ -38,12 +42,11 @@ public class Mui implements Function {
         this.fn = fn;
     }
 
-    public static void register(LightScript ls, MIDlet mid) throws LightScriptException {
-        disp = Display.getDisplay(mid);
-
+    public static void register(LightScript ls) throws LightScriptException {
         ls.set("t", new Mui(0, ls));
         ls.eval("console={};console.log=t");
         ls.set("load", new Mui(1, ls));
+        ls.set("typeof", new Mui(2, ls));
 
 /*
         Class menuClass = new MidpMenu().getClass();
