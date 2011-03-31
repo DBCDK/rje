@@ -1,5 +1,6 @@
 (function() {
     if(typeof(require) === "undefined" && typeof(load) !== "undefined" ) {
+        console.log("in xmodule");
         // LightScript
         var modules = {};
         function def(name, fn) {
@@ -8,18 +9,20 @@
 
         modules.xmodule = { "def": def };
 
+        var l = load;
         require = function(name) {
+            console.log("require: ", name);
             if(!modules[name]) {
                 var prev = exports;
                 exports = {};
-                load(name);
+                l(name);
                 modules[name] = exports;
                 exports = prev;
             }
+            console.log(modules[name]);
             return modules[name];
         }
-
-
+        load = undefined;
 
     } else if(typeof(require) === "undefined") {
         // Browser

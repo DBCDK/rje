@@ -5,7 +5,7 @@ public class Main {
         LightScript ls = new LightScript();
         try {
             Mui.register(ls);
-            ls.eval(ls.getClass().getResourceAsStream("/script.ls"));
+            ls.eval(ls.getClass().getResourceAsStream("/main.js"));
         } catch (Throwable e) {
             e.printStackTrace();
         }

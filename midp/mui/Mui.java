@@ -47,6 +47,9 @@ public class Mui implements Function {
         ls.eval("console={};console.log=t");
         ls.set("load", new Mui(1, ls));
         ls.set("typeof", new Mui(2, ls));
+        ls.eval("load('xmodule')");
+        ls.eval("LightScript=true");
+
 
 /*
         Class menuClass = new MidpMenu().getClass();

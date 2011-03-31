@@ -1595,6 +1595,12 @@ final class Compiler {
             int i = 0;
             while (i < expr.length - 2) {
                 ++i;
+                // convert identifier to literal if 
+                // key in object literal,
+                // ie.: {foo: ...} -> {"foo": ...}
+                if(childType(expr, i) == Code.IDENT) {
+                    ((Object[])expr[i])[0] = new Integer(Code.LITERAL);
+                }
                 compile(expr[i], true);
                 ++i;
                 compile(expr[i], true);
