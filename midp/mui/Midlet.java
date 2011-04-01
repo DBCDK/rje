@@ -8,11 +8,12 @@ public class Midlet extends MIDlet {
         LightScript ls = new LightScript();
         System.out.println("Starting");
         try {
-            Mui.register(ls);
+            Mui.register(ls, this);
             ls.eval(this.getClass().getResourceAsStream("main.js"));
         } catch (Throwable e) {
             e.printStackTrace();
         }
+        /*
         Form form = new Form("title");
         Display.getDisplay(this).setCurrent(form);
 
@@ -28,6 +29,7 @@ public class Midlet extends MIDlet {
         form.addCommand(new Command("button1", 1, 0));
         form.addCommand(new Command("button2", 1, 0));
         form.setTicker(new Ticker("Loading..."));
+        */
     }
 
     protected void pauseApp() {

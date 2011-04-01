@@ -1,4 +1,4 @@
-clearform() - form = new form; show()
+newform(title) - form = new form; show()
 stringitem(text) - form.append("...");
 textfield(label, length, type) - t = textfield(..); form.append(t); return t;
 getvalue(textfield) -  return textfield.value()

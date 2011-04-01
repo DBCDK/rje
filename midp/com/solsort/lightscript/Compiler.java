@@ -230,6 +230,13 @@ final class Compiler {
                || c == '%' || c == '|' || c == '+' || c == '-' || c == '>';
     }
 
+    private int ascii2hex(int c) {
+        return ('0' <= c && c <= '9')
+            ? c - '0'
+            : (c <= 'F')
+                ? c - 'A' + 10
+                : c - 'a' + 10;
+    }
     /** Read the next toke from the input stream.
      * The token is stored in the token and tokenVal property. */
     private void nextToken() {
@@ -277,6 +284,12 @@ final class Compiler {
                     nextc();
                     if (c == 'n') {
                         c = '\n';
+                    } else if (c == 'x') {
+                        int t = 0;
+                        nextc();
+                        t = 16 * ascii2hex(c);
+                        nextc();
+                        c = t + ascii2hex(c);
                     }
                 }
                 pushc();

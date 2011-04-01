@@ -510,6 +510,10 @@ public final class Util implements Function {
             LightScript ls = (LightScript) closure;
             return ls.TRUE;
         }
+        case 42: { // Array.isArray(..)
+            LightScript ls = (LightScript) closure;
+            return args[argpos+1] instanceof Stack ? ls.TRUE : ls.FALSE;
+        }
         }
         return LightScript.UNDEFINED;
     }
@@ -564,6 +568,7 @@ public final class Util implements Function {
         array.put("concat", new Util(25, ls));
         ls.setMethod(arrayClass, "sort", new Util(29));
         ls.setMethod(arrayClass, "toTuple", new Util(37));
+        array.put("isArray", new Util(42, ls));
 
         Hashtable string = new Hashtable();
         ls.set("String", new Util(7, string));
