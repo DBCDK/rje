@@ -17,7 +17,7 @@ require("xmodule").def("muiMidp", function() {
             console.log("Error: childReduce expected array, got:", arr);
         }
         var first = arr[1];
-        if(typeof(first) === "object" && Array.isArray(first)) {
+        if(typeof(first) !== "object" || Array.isArray(first)) {
             acc = fn(acc, first);
         }
         for(var i=2; i < arr.length; ++i) {
@@ -41,7 +41,13 @@ require("xmodule").def("muiMidp", function() {
                 type = types[p[1].type];
                 inputelem[p[1].name] = textfield(p[1].label || "", type.len, type.type);
             } else if(type == "text") {
-                stringitem(p[1]);
+                var text = "";
+                childReduce(p, function(_, a) { 
+                    if(typeof(a) === "string") {
+                        text += a;
+                    }
+                });
+                stringitem(text);
             } else if(type == "button") {
                 addbutton(p[2], 
                     function() {
@@ -52,7 +58,6 @@ require("xmodule").def("muiMidp", function() {
                         for(name in choiceelem) {
                             mui.form[name] = choiceelem[name][1+choiceno(choiceelem[name][0])];
                         }
-                        console.log("mui.form", mui.form);
                         p[1].fn(mui);
                     });
             } else if(type == "choice") {
@@ -78,21 +83,6 @@ require("xmodule").def("muiMidp", function() {
         childReduce(page, showSubPage);
     }
 
-/*
-    newform("Hello world");
-    var t = textfield("textbox", 5000, 0);
-    textfield("email", 40, 1);
-    textfield("tel", 20, 3);
-    var c = choice("choice...");
-    addchoice(c, "a");
-    addchoice(c, "b");
-    addchoice(c, "c");
-    addbutton("foo", function() { console.log("foo", textvalue(t)); });
-    addbutton("bar", function() { console.log("bar", choiceno(c)); });
-    stringitem("helo");
-    */
-
-    mui.loading();
     mui.session = {};
     mui.storage = localStorage;
     exports.setMain = function(muiCallback) {

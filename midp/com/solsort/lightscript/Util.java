@@ -309,7 +309,11 @@ public final class Util implements Function {
                 return "object";
             } else if (arg1 instanceof Stack) {
                 return "object";
+            } else if (arg1 instanceof String) {
+                return "string";
             } else if (arg1 instanceof Integer) {
+                return "number";
+            } else if (arg1 instanceof FixedPoint) {
                 return "number";
             } else if (arg1 == LightScript.UNDEFINED) {
                 return "undefined";
