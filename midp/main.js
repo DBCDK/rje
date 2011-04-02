@@ -1,3 +1,39 @@
+console.log([1,2,3,4].join("?"));
+/*
+o = {a:2, b:3};
+o2 = Object.create(o);
+o2.c = 4;
+for(x in o2) {
+    console.log("o2", x);
+}
+setTimeout(function() {
+    console.log("timeout");
+}, 100);
+console.log("HERE");
+x = 1/10;
+console.log("1/3", 1/3);
+console.log("x = 1/10", x);
+console.log("x-x*x", x-x*x);
+console.log("Math.random()", Math.random());
+console.log("Math.random()", Math.random());
+console.log("Math.random()", Math.random());
+console.log("Math.random()", Math.random());
+a = {};
+console.log("HERE!!!");
+console.log(a.a=1);
+
+console.log(255);
+console.log((255).toString(16));
+
+foo = function(x) {
+    console.log("foo", x);
+};
+httpget("http://opensearch.addi.dk/1.0/?action=search&query=mui&source=bibliotekdk&outputType=json&callback=foo", function(data) {
+//    console.log("data", data);
+//    console.log("eval(data)", eval(data));
+    eval(data);
+});
+*/
 require("xmodule").def("main",function(){
 require("mui");
 
@@ -31,10 +67,12 @@ function main(mui) {
 
 function ask(mui) {     
   mui.loading();
+  console.log("asking, form: ", mui.form);
   var deadline = "";
   if (mui.form.deadline !== "-1") {
     deadline = " indenfor de n\xe6ste " + mui.form.deadline + " timer";
   }
+  var deadline = "";
   var answer = "";
   if (mui.form.answer === "email" && mui.form.email !== "") {
     answer = " p\xe5 " + mui.form.email; 

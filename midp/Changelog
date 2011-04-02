@@ -1,6 +1,12 @@
 Changelog
 =========
 
+- Mui version - in progress
+    - Integrated/becoming a part of mui - Mobile User Interface
+    - Major cleanup
+    - Added some toBool casting, typeof, load/require-support, gui library based on mui, \x in strings, id->string for objectkeys
+
+
 - Version 1.2 [download source](static/lightscript-1.2.585.tar.bz2)
     - More operators, larger built-in library
     - Support for fractional numbers, fixed-point on integer-only platforms, and otherwise floats.

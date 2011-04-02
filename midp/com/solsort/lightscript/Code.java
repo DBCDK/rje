@@ -573,7 +573,7 @@ final class Code implements Function {
                 }
                 case Code.PUT: {
                     sp -= 2;
-                    ls.getSetter(stack[sp].getClass()).apply(stack, sp, 2);
+                    stack[sp] = ls.getSetter(stack[sp].getClass()).apply(stack, sp, 2);
                     break;
                 }
                 case Code.SUBSCRIPT: {

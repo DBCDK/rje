@@ -201,6 +201,7 @@ final class Compiler {
     private void nextc() {
         try {
             c = is.read();
+            //System.out.print((char)c);
         } catch (Exception e) {
             c = -1;
         }
@@ -1607,6 +1608,8 @@ final class Compiler {
 
             int i = 0;
             while (i < expr.length - 2) {
+                emit(Code.DUP);
+                addDepth(1);
                 ++i;
                 // convert identifier to literal if 
                 // key in object literal,
@@ -1619,6 +1622,8 @@ final class Compiler {
                 compile(expr[i], true);
                 emit(Code.PUT);
                 addDepth(-2);
+                emit(Code.DROP);
+                addDepth(-1);
             }
             hasResult = true;
 

@@ -27,7 +27,6 @@ Mui Objects are only available to callbacks, and contains the following properti
 - `mui.session` is an initially empty object where the application can store data, which will be available in futher callbacks in the same session.
 - `mui.storage.getItem(key)` retrieve a value for a given key in a persistent storage linked to the current device.
 - `mui.storage.setItem(key, value)` sets an item in the storage. The value should be JSON-serialisable.
-- `mui.storage.removeItem(key)` deletes an item in the storage.
 - `mui.loading()` indicates loading activity to the user.
 - `mui.callJsonpWebservice(url, callbackParameterName, args, callback)` calls a web service. `url` is the url of the web service, `callbackParameterName` is the parameter to the service which names the [padding function](http://en.wikipedia.org/wiki/JSONP), `args` is an object of arguments which are to be passed to the url, and `callback` is an unary JavaScript function which will be called with result of the web service, or `undefined` if the service fails or times out.
 - `mui.showPage(muiPage)` displays a page that the user can interact with.

@@ -38,8 +38,7 @@ class FixedPoint {
         }
         return sb.toString();
     }
-}
-class FixedPointOps {
+
     /*`\subsection{Arithmetics}'*/
     //<editor-fold>
 

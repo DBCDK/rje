@@ -24,9 +24,9 @@ public class MidpStorage {
             Object o = names.get(key);
             if (o != null) {
                 int id = ((Integer) o).intValue();
-                records.setRecord(id, data, 0, len);
+                records.setRecord(id, data, 0, data.length);
             } else {
-                int id = records.addRecord(data, 0, len);
+                int id = records.addRecord(data, 0, data.length);
                 names.put(key, new Integer(id));
             }
         } catch (Exception ex) {

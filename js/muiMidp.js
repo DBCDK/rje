@@ -1,18 +1,16 @@
 require("xmodule").def("muiMidp", function() {
-    console.log("A");
     var mui = {};
     var tickerFn = setTicker;
-    console.log("B");
     setTicker = undefined;
     mui.loading = function() {
         tickerFn("loading...");
     }
-    console.log("C");
+
     var newForm = newform;
     newform = undefined;
     newForm("Mui App");
-    console.log("D");
     mui.loading();
+    mui.callJsonpWebservice = require("Q").callJsonpWebservice; 
 
     function childReduce(arr, fn, acc) {
         if(!Array.isArray(arr)) {
@@ -34,7 +32,6 @@ require("xmodule").def("muiMidp", function() {
             var type = p[0];
             if(type == "section") {
                 childReduce(p, showSubPage);
-                console.log(type);
             } else if(type == "input") {
                 types = {
                     textbox: { type: 0, len: 5000},
@@ -48,18 +45,23 @@ require("xmodule").def("muiMidp", function() {
             } else if(type == "button") {
                 addbutton(p[2], 
                     function() {
-                        p[1].fn(Object.create(mui));
+                        mui.form = {};
+                        for(name in inputelem) {
+                            mui.form[name] = textvalue(inputelem[name]);
+                        }
+                        for(name in choiceelem) {
+                            mui.form[name] = choiceelem[name][1+choiceno(choiceelem[name][0])];
+                        }
+                        console.log("mui.form", mui.form);
+                        p[1].fn(mui);
                     });
             } else if(type == "choice") {
                 var c = choice(p[1].label || "");
-                var a = [];
+                var a = [c];
                 choiceelem[p[1].name] = a;
                 childReduce(p, function(_, elem) {
-                    console.log("HERE", elem, a, c);
                     addchoice(c, elem[2]);
-                    console.log("HERE2", elem, a, c);
                     a.push(elem[1].value);
-                    console.log("HERE3", elem, a, c);
                 });
             } else {
                 console.log("Unexpected page element:", type);
@@ -76,7 +78,6 @@ require("xmodule").def("muiMidp", function() {
         childReduce(page, showSubPage);
     }
 
-    console.log("E");
 /*
     newform("Hello world");
     var t = textfield("textbox", 5000, 0);
@@ -91,11 +92,10 @@ require("xmodule").def("muiMidp", function() {
     stringitem("helo");
     */
 
-    console.log("F");
     mui.loading();
+    mui.session = {};
+    mui.storage = localStorage;
     exports.setMain = function(muiCallback) {
-        console.log("setMain: ", muiCallback);
-        muiCallback(Object.create(mui));
+        muiCallback(mui);
     }
-    console.log("G");
 });

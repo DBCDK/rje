@@ -1,10 +1,47 @@
 require("xmodule").def("Q",function(){
 
+    var randint = exports.randint = function(n) {
+        return 0 | (Math.random()*n)
+    };
+
+    var pick = exports.pick = function(a) {
+        return a[randint(a.length)];
+    };
+
     var features = exports.features = {
         browser: typeof(navigator) !== "undefined",
         nodejs: typeof(process) !== "undefined" && process.versions.node !== undefined,
         lightscript: typeof(LightScript) !== "undefined"
     };
+
+    var urichars = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_~.";
+    var escapeUri = exports.escapeUri = function (uri) {
+        var result = [];
+        for(var i=0;i<uri.length;++i) {
+            var c = uri[i];
+            if(urichars.indexOf(c) >= 0) {
+                result.push(c);
+            } else {
+                c = c.charCodeAt(0);
+                if(c > 255) {
+                    result.push(escapeUri("&#" + c + ";"));
+                } else {
+                    result.push( "%" + (c<16?"0":"") + c.toString(16));
+                }
+            }
+        }
+        return result.join("");
+    };
+
+    var encodeUrlParameters = exports.encodeUrlParameters = function (args) {
+        var result = [];
+        var name;
+        for(name in args) {
+            result.push(escapeUri(name) + "=" + escapeUri("" + args[name]));
+        }
+        return result.join("&");
+    }
+
 
     var executeRemote = exports.executeRemote = function(url) {
         if(features.nodejs) {
@@ -15,6 +52,10 @@ require("xmodule").def("Q",function(){
             var scriptTag = document.createElement("script");
             scriptTag.setAttribute("src", url);
             document.getElementsByTagName("head")[0].appendChild(scriptTag);
+        } else if(features.lightscript) {
+            httpget(url, function(data) {
+                eval(data);
+            });
         } else {
             throw "unsupported operation"
         }
@@ -47,7 +88,7 @@ require("xmodule").def("Q",function(){
 
     var id = 0;
     function uniqId() {
-        var letters = 'qwertyuiopasdfghjklzxcvbnmQWERTYIUOPASDFGHJKLZXCVBNM_$'
+        var letters = 'qwertyuiopasdfghjklzxcvbnmQWERTYIUOPASDFGHJKLZXCVBNM_' // +'$' $ doesn't work with our webservice!
         var result = pick(letters);
         for(var i = 0; i < 10; ++i) {
             result += pick(letters+"1234567890");
@@ -61,11 +102,12 @@ require("xmodule").def("Q",function(){
         // without altering the original parameter
         args = Object.create(args); 
 
+
         // temporary global callback function, that deletes itself after used
         var callbackName = "_Q_" + uniqId();
         var callbackFn = global[callbackName] = function(data) {
-            if(global.hasOwnProperty(callbackName)) {
-                delete global[callbackName];
+            if(global[callbackName]) {
+                global[callbackName] = undefined;
                 try {
                     callback(data);
                 } catch(e) {
@@ -82,22 +124,6 @@ require("xmodule").def("Q",function(){
         executeRemote(url + "?" + encodeUrlParameters(args));
     }
 
-    var encodeUrlParameters = exports.encodeUrlParameters = function (args) {
-        var result = [];
-        for(name in args) {
-            result.push(escapeUri(name) + "=" + escapeUri("" + args[name]));
-        }
-        return result.join("&");
-    }
-
-
-    var randint = exports.randint = function(n) {
-        return 0 | (Math.random()*n)
-    };
-
-    var pick = exports.pick = function(a) {
-        return a[randint(a.length)];
-    };
 
     // Fixed uri escape. JavaScripts escape, encodeURI, ... are buggy.
     // These should work.
@@ -115,17 +141,5 @@ require("xmodule").def("Q",function(){
         });
         return uri;
     }
-
-    var escapeUri = exports.escapeUri = function (uri) {
-        uri = uri.replace(RegExp("[^a-zA-Z0-9-_~.]", "g"), function(c) {
-            c = c.charCodeAt(0);
-            if(c > 255) {
-                return escapeUri("&#" + c + ";");
-            } else {
-                return "%" + (c<16?"0":"") + c.toString(16);
-            }
-        });
-        return uri;
-    };
 
 });

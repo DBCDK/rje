@@ -8,7 +8,7 @@ public class Midlet extends MIDlet {
         LightScript ls = new LightScript();
         System.out.println("Starting");
         try {
-            Mui.register(ls, this);
+            Mui.register(ls, this, "localStorage");
             ls.eval(this.getClass().getResourceAsStream("main.js"));
         } catch (Throwable e) {
             e.printStackTrace();

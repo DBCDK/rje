@@ -143,7 +143,12 @@ public final class LightScript {
 
     /** Constructor, loading standard library */
     public LightScript() {
-        Util.register(this);
+        try {
+            Util.register(this);
+        } catch(LightScriptException e) {
+            e.printStackTrace();
+            throw new Error(e.toString());
+        }
     }
 
     // <editor-fold desc="eval(...)">
