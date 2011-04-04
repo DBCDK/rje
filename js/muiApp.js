@@ -113,6 +113,7 @@ require("xmodule").def("muiApp",function(){
                 if(jsonml.getAttr(node, "label")) {
                     result.push(["div", {"class": "label"}, ["label", {"for": labelid}, jsonml.getAttr(node, "label"), ":"]]);
                 }
+                var defaultValue =  jsonml.getAttr(node, "value") || "";
     
                 var name = jsonml.getAttr(node, "name");
                 if(!name) {
@@ -123,10 +124,15 @@ require("xmodule").def("muiApp",function(){
                     if(node[0] !== "option") {
                         throw "only option nodes are allows as children to choices";
                     }
-                    if(!jsonml.getAttr(node, "value")) {
+                    var value =  jsonml.getAttr(node, "value");
+                    if(!value) {
                         throw "option widgets must have a value attribute";
                     }
-                    select.push(["option", {"value": jsonml.getAttr(node, "value")}, node[2]]);
+                    var attrs = { value : value };
+                    if(value === defaultValue) {
+                        attrs.selected = "true";
+                    }
+                    select.push(["option", attrs, node[2]]);
                     return html;
                 }, result);
                 result.push(select);
