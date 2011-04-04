@@ -1,1 +1,1 @@
-rm -rf com/solsort/*/*.class *.class *.jar 
+rm -f `find src -name "*.class"` `find src -name "*.jar"`
