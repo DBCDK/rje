@@ -83,13 +83,15 @@ require("xmodule").def("muiApp",function(){
                 }
 
                 var tagAttr = {"class": type, "id": labelid, "name": name};
+                var value =  jsonml.getAttr(node, "value") || "";
                 if(features.placeholder) {
                     tagAttr.placeholder = jsonml.getAttr(node, "label");
                 }
                 if(type === "textbox") {
-                    result.push(["textarea", tagAttr, ""]);                
+                    result.push(["textarea", tagAttr, value]);                
                 } else if(type === "email" || type === "text") {
                     tagAttr.type = type;
+                    tagAttr.value = value;
                     result.push(["input", tagAttr]);
                 } else if(type === "tel") {
                     if(features.telInput) {
@@ -97,6 +99,7 @@ require("xmodule").def("muiApp",function(){
                     } else {
                         tagATtr.type = "number";
                     }
+                    tagAttr.value = value;
                     result.push(["input", tagAttr]);
                 } else {
                     throw "unknown input type: " + type;
