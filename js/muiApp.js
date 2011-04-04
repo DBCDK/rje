@@ -272,6 +272,8 @@ require("xmodule").def("muiApp",function(){
                 alert(e);
                 throw e;
             }
+        } else {
+            mui.storage = localStorage;
         }
 
         document.getElementsByTagName("head")[0].appendChild(scriptTag);
