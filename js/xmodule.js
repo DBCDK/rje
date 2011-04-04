@@ -1,5 +1,5 @@
 (function() {
-    if(typeof(require) === "undefined" && typeof(load) !== "undefined" ) {
+    if(typeof(LightScript) !== "undefined") {
         // LightScript
         var modules = {};
         function def(name, fn) {
