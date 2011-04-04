@@ -119,6 +119,7 @@ require("xmodule").def("muiApp",function(){
                 if(!name) {
                     throw "choice widgets must have a name attribute";
                 }
+
                 var select = ["select", {"name": jsonml.getAttr(node, "name")}];
                 jsonml.childReduce(node, function(html, node) {
                     if(node[0] !== "option") {
