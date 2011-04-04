@@ -184,7 +184,7 @@ require("xmodule").def("muiWap",function(){
         muiObject.httpResult = res;
         muiObject.httpRequest = req;
         muiObject.button = params._B;
-        muiObject.form = params;
+        muiObject.formValue = function(name) { return params[name]; };
 
         fn = muiObject.fns[Q.unescapeUri(params._B || "")] || mainFn;
         muiObject.fns = {};

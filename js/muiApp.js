@@ -150,6 +150,7 @@ require("xmodule").def("muiApp",function(){
                 }
                 var fnid = uniqId();
                 callbacks[fnid] = jsonml.getAttr(node, "fn");
+                console.log(callbacks);
                 var attr = {"class": "button", onclick: "__mui__.__call_fn('"+fnid+"');"};
                 var result = ["div", attr];
                 jsonml.childReduce(node, nodeHandler, result);
@@ -250,11 +251,14 @@ require("xmodule").def("muiApp",function(){
 
     var callbacks = {};
     __mui__.__call_fn = function(fnid) {
-        callback = callbacks[fnid];
+        var callback = callbacks[fnid];
         callbacks = {};
 
         var muiObject = Object.create(mui);
-        muiObject.form = formExtract(gId("current"), {});
+        muiObject.formValue = (function () {
+                var form = formExtract(gId("current"), {});
+                return function(name) { return form[name]; }
+            })();
         try {
             callback(muiObject);
         } catch(e) {
@@ -297,7 +301,7 @@ require("xmodule").def("muiApp",function(){
 
     function muiMain() {
         var muiObject = Object.create(mui);
-        muiObject.form = {};
+        muiObject.formValue = function() { };
 
         try {
             main(muiObject);

@@ -4,3 +4,6 @@ Copyright (C) 2008-2011 by Rasmus Erik Voel Jensen
 Available under *either* the terms of the modified BSD license *or* 
 the MIT License *or* the GNU General Public License (GPL) at your choice. 
 See http://opensource.org/licenses/alphabetical for full text.
+
+(notice: contains some external libraries which is under Apache 2.0 license
+(compatible license with above afaik ianal))

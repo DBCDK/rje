@@ -51,13 +51,16 @@ require("xmodule").def("muiMidp", function() {
             } else if(type == "button") {
                 addbutton(p[2], 
                     function() {
-                        mui.form = {};
+                        var form = {};
                         for(name in inputelem) {
-                            mui.form[name] = textvalue(inputelem[name]);
+                            form[name] = textvalue(inputelem[name]);
                         }
                         for(name in choiceelem) {
-                            mui.form[name] = choiceelem[name][1+choiceno(choiceelem[name][0])];
+                            form[name] = choiceelem[name][1+choiceno(choiceelem[name][0])];
                         }
+                        mui.formValue = function(name) {
+                            return form[name];
+                        };
                         p[1].fn(mui);
                     });
             } else if(type == "choice") {
