@@ -38,7 +38,14 @@ function fromXml(xml) {
     // current tag being parsed
     var tag = [];
     // read the next char from the string
-    function next_char() { c = ++pos < xml.length ? xml[pos] : undefined; }
+    function next_char() { 
+        ++pos;
+        if(pos < xml.length) {
+            c = xml[pos];
+        } else {
+            c = undefined;
+       }
+    }
     // check if the current char is one of those in the string parameter 
     function is_a(str) { return str.indexOf(c) !== -1; }
     // return the string from the current position to right before the first 
@@ -132,7 +139,7 @@ function fromXml(xml) {
                 }
                 next_char();
                 var parent_tag = stack.pop();
-                if(tag.length <= 2 && !isArray(tag[1]) && typeof(tag[1]) !== "string") {
+                if(tag.length <= 2 && !Array.isArray(tag[1]) && typeof(tag[1]) !== "string") {
                     tag.push("");
                 }
                 parent_tag.push(tag);
@@ -154,7 +161,7 @@ exports.fromXml = function(xml) {
     // so skip the parsed until we find an array.
     var parsed = fromXml(xml);
     for(var i=0;i<parsed.length;++i) {
-        if(parsed[i] instanceof Array) {
+        if(Array.isArray(parsed[i])) {
             return parsed[i];
         }
     }
@@ -173,13 +180,14 @@ exports.toXml = function(jsonml) {
 // The actual implementation. As the XML-string is built by appending to the 
 // `acc`umulator.
 function toXmlAcc(jsonml, acc) {
-    if(isArray(jsonml)) {
+    if(Array.isArray(jsonml)) {
         acc.push("<");
         acc.push(jsonml[0]);
         var pos = 1;
         var attributes = jsonml[1];
-        if(attributes && !isArray(attributes) && typeof(attributes) !== "string") {
-            for(var key in attributes) { if(attributes.hasOwnProperty(key)) {
+        var key;
+        if(attributes && !Array.isArray(attributes) && typeof(attributes) !== "string") {
+            for(key in attributes) { if(attributes.hasOwnProperty(key)) {
                 acc.push(' ');
                 acc.push(key);
                 acc.push('="');
@@ -217,7 +225,8 @@ var entities = {
 // Generate a reverse xml entity table.
 var reventities = (function () {
     var result = {};
-    for(var key in entities) { if(entities.hasOwnProperty(key)) {
+    var key;
+    for(key in entities) { if(entities.hasOwnProperty(key)) {
         result[entities[key]] = key;
     } }
     return result;
@@ -245,7 +254,7 @@ function xmlEscape(str, acc) {
 // Apply a function to all the child elements of a given jsonml array.
 var childReduce = exports.childReduce = function(jsonml, fn, acc) {
     var first = jsonml[1];
-    if(typeof(first) !== "object" || isArray(first)) {
+    if(typeof(first) !== "object" || Array.isArray(first)) {
         acc = fn(acc, first);
     }
     for(var pos = 2; pos < jsonml.length; ++pos) {
@@ -254,16 +263,8 @@ var childReduce = exports.childReduce = function(jsonml, fn, acc) {
     return acc;
 };
 
-// - `jsonml.ensureAttributeObject(jsonml_array)` changes an jsonml array such that it has a (possibly empty) attribute object at position 1
-exports.ensureAttributeObject = function(jsonml) {
-    if(typeof jsonml[1] !== "object" || jsonml[1].constructor === Array) {
-        jsonml.unshift(jsonml[0]);
-        jsonml[1] = {};
-    }
-};
-
 exports.getAttr = function(jsonml, attribute) {
-    if(typeof jsonml[1] !== "object" || jsonml[1].constructor === Array) {
+    if(Array.isArray(jsonml[1])) {
         return undefined;
     } else {
         return jsonml[1][attribute];
@@ -283,20 +284,21 @@ function toObjectInner(jsonml) {
     var result = {};
     var attr = jsonml[1];
     var pos;
-    if(typeof(attr) === "object" && !isArray(attr)) {
-        for(var key in attr) { if(attr.hasOwnProperty(key)) {
+    var key;
+    if(typeof(attr) === "object" && !Array.isArray(attr)) {
+        for(key in attr) { if(attr.hasOwnProperty(key)) {
             result["@" + key] = attr[key];
         } }
         pos = 2;
     } else {
         pos = 1;
-        if(jsonml.length === 2 && !isArray(attr)) {
+        if(jsonml.length === 2 && !Array.isArray(attr)) {
             return attr;
         }
     }
     while(pos < jsonml.length) {
         var current = jsonml[pos];
-        if(isArray(current)) {
+        if(Array.isArray(current)) {
             addprop(result, current[0], toObjectInner(current));
         } else {
             addprop(result, "_", current);
@@ -311,7 +313,7 @@ function toObjectInner(jsonml) {
 // object in front of such array, if that is not an array yet.
 function addprop(obj, key, val) {
     if(obj[key]) {
-        if(isArray(obj[key])) {
+        if(Array.isArray(obj[key])) {
             obj[key].push(val);
         } else {
             obj[key] = [obj[key], val];
@@ -323,11 +325,6 @@ function addprop(obj, key, val) {
 // Error handler
 function JsonML_Error(desc) {
     throw desc;
-}
-
-// Array check, implemented here to avoid depending on any library
-function isArray(a) {
-    return a !== null && typeof(a) === "object"  && a.constructor === Array;
 }
 
 });

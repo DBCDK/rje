@@ -128,7 +128,7 @@ require("xmodule").def("Q",function(){
     // Fixed uri escape. JavaScripts escape, encodeURI, ... are buggy.
     // These should work.
     exports.unescapeUri = function(uri) {
-        uri = uri.replace(RegExp("((\+)|%([0-9a-fA-F][0-9a-fA-F]))", "g"), 
+        uri = uri.replace(RegExp("((\\+)|%([0-9a-fA-F][0-9a-fA-F]))", "g"), 
                           function(_1,_2,plus,hexcode) { 
                               if(plus) {
                                   return " ";

@@ -66,7 +66,11 @@ public class Mui implements Function, CommandListener {
             return ls.UNDEFINED;
         }
         case 11: { // localStorage.getItem
-            return ((MidpStorage) args[argpos]).get(ls.toString(args[argpos + 1]));
+            Object o = ((MidpStorage) args[argpos]).get(ls.toString(args[argpos + 1]));
+            if(o == null) {
+                o = ls.UNDEFINED;
+            }
+            return o;
         }
         case 12: { // localStorage.setItem
             ((MidpStorage) args[argpos]).set(ls.toString(args[argpos + 1]), ls.toString(args[argpos + 2]));

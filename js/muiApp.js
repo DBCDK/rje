@@ -1,8 +1,11 @@
 // # Mui HTML5 Backend
 require("xmodule").def("muiApp",function(){
 
-    Q = require("Q");
-    jsonml = require("jsonml");
+    var Q = require("Q");
+    var jsonml = require("jsonml");
+
+    var pageTransform = require("muiPage").transformFactory({html5: true, placeholder: true, telinput: true});
+
     if(typeof localStorage === "undefined") {
         require("phonegap");
     }
@@ -42,141 +45,6 @@ require("xmodule").def("muiApp",function(){
         showHTML(pageTransform(page));
     };
     
-    // Generate an uniq id - probably move this to Q
-    uniqId = (function() {
-        var id = 0;
-        return function() {
-            return "__mui_id_" + id++;
-        }
-    })();
-    
-    // feature detection, should be merged with Q.features  
-    var features = {
-        placeholder: true,
-        telInput: true
-    };
-
-    function pageTransform(page) {
-        var handlers = {
-            section: function(html, node) {
-                var result = ["div", {"class": "contentbox input"}];
-                jsonml.childReduce(node, nodeHandler, result);
-                html.push(result);
-            },
-            input: function(html, node) {
-                var result = ["div", {"class": "input"}];
-                var type = jsonml.getAttr(node, "type");
-                if(!type) {
-                    throw "input widgets must have a type attribute";
-                }
-                var name = jsonml.getAttr(node, "name");
-                if(!name) {
-                    throw "input widgets must have a name attribute";
-                }
-
-                var labelid = uniqId();
-                if(features.placeholder === true) {
-                } else {
-                  if(jsonml.getAttr(node, "label")) {
-                    result.push(["div", {"class": "label"}, ["label", {"for": labelid}, jsonml.getAttr(node, "label"), ":"]]);
-                  }
-                }
-
-                var tagAttr = {"class": type, "id": labelid, "name": name};
-                var value =  jsonml.getAttr(node, "value") || "";
-                if(features.placeholder) {
-                    tagAttr.placeholder = jsonml.getAttr(node, "label");
-                }
-                if(type === "textbox") {
-                    result.push(["textarea", tagAttr, value]);                
-                } else if(type === "email" || type === "text") {
-                    tagAttr.type = type;
-                    tagAttr.value = value;
-                    result.push(["input", tagAttr]);
-                } else if(type === "tel") {
-                    if(features.telInput) {
-                        tagAttr.type = type;
-                    } else {
-                        tagATtr.type = "number";
-                    }
-                    tagAttr.value = value;
-                    result.push(["input", tagAttr]);
-                } else {
-                    throw "unknown input type: " + type;
-                }
-                html.push(result);
-            },
-            choice: function(html, node) {
-                var result = ["div", {"class": "input"}];
-    
-                var labelid = uniqId();
-                if(jsonml.getAttr(node, "label")) {
-                    result.push(["div", {"class": "label"}, ["label", {"for": labelid}, jsonml.getAttr(node, "label"), ":"]]);
-                }
-                var defaultValue =  jsonml.getAttr(node, "value") || "";
-    
-                var name = jsonml.getAttr(node, "name");
-                if(!name) {
-                    throw "choice widgets must have a name attribute";
-                }
-
-                var select = ["select", {"name": jsonml.getAttr(node, "name")}];
-                jsonml.childReduce(node, function(html, node) {
-                    if(node[0] !== "option") {
-                        throw "only option nodes are allows as children to choices";
-                    }
-                    var value =  jsonml.getAttr(node, "value");
-                    if(!value) {
-                        throw "option widgets must have a value attribute";
-                    }
-                    var attrs = { value : value };
-                    if(value === defaultValue) {
-                        attrs.selected = "true";
-                    }
-                    select.push(["option", attrs, node[2]]);
-                    return html;
-                }, result);
-                result.push(select);
-                html.push(result);
-            },
-            text: function(html, node) {
-                var result = ["div", {"class": "text"}];
-                jsonml.childReduce(node, nodeHandler, result);
-                html.push(result);
-            },
-            button: function(html, node) {
-                if(!jsonml.getAttr(node, "fn")) {
-                    throw "buttons must have an fn attribute, containing a function to call";
-                }
-                var fnid = uniqId();
-                callbacks[fnid] = jsonml.getAttr(node, "fn");
-                console.log(callbacks);
-                var attr = {"class": "button", onclick: "__mui__.__call_fn('"+fnid+"');"};
-                var result = ["div", attr];
-                jsonml.childReduce(node, nodeHandler, result);
-                html.push(result);
-            }
-        };
-    
-        function nodeHandler(html, node) {
-            if(typeof(node) === "string") {
-                html.push(node);
-            } else {
-                var handle = handlers[node[0]]; 
-                if(!handle) {
-                    throw "mui received a page containing an unknown tagtype: " + node[0];
-                }
-                handle(html, node);
-            }
-            return html;
-        }
-    
-        var html = ["form"];
-        var title = jsonml.getAttr(page, "title") || "untitled";
-        jsonml.childReduce(page, nodeHandler, html);
-        return [["div", {"class":"header"}, title], html, ["div", {"class":"contentend"}, " "]];
-    }
-
     // calculate height of dom element
     function height(dom) {
         return document.defaultView.getComputedStyle(dom, "").getPropertyValue("height");
@@ -250,9 +118,10 @@ require("xmodule").def("muiApp",function(){
     }
 
     var callbacks = {};
+    __mui__.__callbacks = callbacks;
     __mui__.__call_fn = function(fnid) {
         var callback = callbacks[fnid];
-        callbacks = {};
+        __mui__.__callbacks = callbacks = {};
 
         var muiObject = Object.create(mui);
         muiObject.formValue = (function () {

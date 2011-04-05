@@ -251,6 +251,7 @@ public final class Util implements Function {
         }
         case 9: { // hashtable setter
             Hashtable h = (Hashtable) args[argpos];
+            //System.out.println(args[argpos] + ".put(" + args[argpos+1] + ", " + args[argpos+2] + ")");
             h.put(args[argpos + 1], args[argpos + 2]);
             return args[argpos + 2];
         }
@@ -769,8 +770,8 @@ public final class Util implements Function {
         ls.set("load", new Util(44, ls));
         ls.set("eval", new Util(45, ls));
         ls.set("typeof", new Util(18));
-        ls.eval("load('xmodule')");
         ls.eval("LightScript=true");
+        ls.eval("load('xmodule')");
     }
 }
 

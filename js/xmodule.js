@@ -132,7 +132,7 @@
             }
 
             // ensure sane environment
-            if(typeof(Object.create) !== "function") {
+            if(typeof(Object.create) !== "function" || typeof(Function.prototype.bind) !== "function") {
                 fetch("es5-shim");
                 setTimeout(function() { load(name); }, 20);
             }
