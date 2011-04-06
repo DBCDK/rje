@@ -107,7 +107,7 @@ require("xmodule").def("muiPage",function(){
 
                 var label = jsonml.getAttr(node, "label");
                 if(label) {
-                    select.push(["option", {}, label]);
+                    select.push(["option", {value: ""}, label]);
                 }
 
     
