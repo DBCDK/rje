@@ -31,7 +31,7 @@ public class Mui implements Function, CommandListener {
             return ls.UNDEFINED;
         }
         case 4: { // textfield(label, length, type) -> textbox
-            TextField t = new TextField(ls.toString(args[argpos+1]), "",
+            TextField t = new TextField(ls.toString(args[argpos+1]), ls.toString(args[argpos+4]),
                             ls.toInt(args[argpos+2]), ls.toInt(args[argpos+3]));
             form.append(t);
             return t;
@@ -45,7 +45,11 @@ public class Mui implements Function, CommandListener {
             return choice;
         }
         case 15: { // addchoice(choice, text)
-            ((ChoiceGroup)args[argpos+1]).append(ls.toString(args[argpos+2]), null);
+            ChoiceGroup c = (ChoiceGroup)args[argpos+1];
+            c.append(ls.toString(args[argpos+2]), null);
+            if(args[argpos+3] == ls.TRUE) {
+                c.setSelectedIndex(c.size()-1,true);
+            }
             return ls.UNDEFINED;
         }
         case 7: { // choiceno(choiceset) -> int
@@ -92,7 +96,7 @@ public class Mui implements Function, CommandListener {
         ls = lightscript;
         mid = midlet;
         ls.set("newform", new Mui(3)); // newform(title)
-        ls.set("textfield", new Mui(4)); // textfield(label, length, type) -> textbox
+        ls.set("textfield", new Mui(4)); // textfield(label, length, type, defaultvalue) -> textbox
         ls.set("textvalue", new Mui(5)); // textvalue(textbox) -> txt
         ls.set("choice", new Mui(6)); // choice(label, [choices...]) -> choiceset
         ls.set("choiceno", new Mui(7)); // choiceno(choiceset) -> int

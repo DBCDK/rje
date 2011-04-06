@@ -20,25 +20,28 @@ require("xmodule").def("muiPage",function(){
             },
 
             input: function(html, node) {
+                var value =  jsonml.getAttr(node, "value") || "";
+                var type = jsonml.getAttr(node, "type");
+
+                var name = jsonml.getAttr(node, "name");
+                if(!name) {
+                    throw "input widgets must have a name attribute";
+                }
+
                 if(config.midp) {
                     types = {
                         textbox: { type: 0, len: 5000},
                         email: {type: 1, len: 20},
                         tel: { type: 3, len: 20}
                         };
-                    type = types[node[1].type];
-                    inputelem[node[1].name] = textfield(node[1].label || "", type.len, type.type);
+                    type = types[type];
+                    inputelem[name] = textfield(node[1].label || "", type.len, type.type, value);
                     return;
                 }
 
                 var result = ["div", {"class": "input"}];
-                var type = jsonml.getAttr(node, "type");
                 if(!type) {
                     throw "input widgets must have a type attribute";
-                }
-                var name = jsonml.getAttr(node, "name");
-                if(!name) {
-                    throw "input widgets must have a name attribute";
                 }
 
                 var tagAttr = {"class": type, "name": name};
@@ -53,8 +56,6 @@ require("xmodule").def("muiPage",function(){
                     } 
                     tagAttr.id = labelid;
                 }
-
-                var value =  jsonml.getAttr(node, "value") || "";
 
                 if(type === "textbox") {
                     result.push(["textarea", tagAttr, value]);                
@@ -83,19 +84,24 @@ require("xmodule").def("muiPage",function(){
             },
 
             choice: function(html, node) {
+                console.log("choice: ", node);
+                var defaultValue = jsonml.getAttr(node, "value") || "";
+
                 if(config.midp) {
                     var choiceVal = [choice(node[1].label || "")];
                     choiceelem[node[1].name] = choiceVal;
                     for(var i = 2; i < node.length; ++i) {
-                        addchoice(choiceVal[0], node[i][2]);
-                        choiceVal.push(node[i][1].value);
+                        var optionvalue = node[i][1].value;
+                        console.log("choiceoption", optionvalue, defaultValue);
+                        
+                        addchoice(choiceVal[0], node[i][2], optionvalue === defaultValue);
+                        choiceVal.push(optionvalue);
                     };
                     return;
                 }
 
                 var result = ["div", {"class": "input"}];
 
-                var defaultValue =  jsonml.getAttr(node, "value") || "";
                 var tagAttr = {"name": jsonml.getAttr(node, "name")};
                 var select = ["select", tagAttr];
 
