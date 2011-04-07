@@ -25,6 +25,7 @@ require("xmodule").def("muiWap",function(){
         form: {},
         loading: function() {
         },
+        setHints: require("muiPage").setHints,
         callJsonpWebservice: function(url, callbackParameterName, args, callback) {
         Q.callJsonpWebservice(url, callbackParameterName, args, callback);
         },

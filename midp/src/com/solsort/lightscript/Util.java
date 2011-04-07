@@ -597,10 +597,8 @@ public final class Util implements Function {
             LightScript ls = (LightScript) closure;
             Object o = args[argpos+1];
             if(o instanceof InputStream) {
-                System.out.println("Eval InputStream");
                 o = ls.eval((InputStream)o);
             } else {
-                System.out.println("Eval String");
                 o = ls.eval(ls.toString(o));
             }
             return o;
@@ -619,7 +617,6 @@ public final class Util implements Function {
                 base = ls.toInt(args[argpos+1]);
             }
             int n = ls.toInt(args[argpos]);
-            System.out.println("Number.toString " + n);
 
             if(n==0) {
                 return "0";
@@ -643,7 +640,6 @@ public final class Util implements Function {
             if(sign) {
                 result = "-" + result;
             }
-            System.out.println(result);
             return result;
         }
         case 48: { // division /
@@ -665,6 +661,14 @@ public final class Util implements Function {
             LightScript ls = (LightScript) closure;
             new Timeout(ls, (Function) args[argpos+1], ls.toInt(args[argpos+2]));
             return LightScript.UNDEFINED;
+        }
+        case 54: { // Object.keys
+            Enumeration e = ((Hashtable)args[argpos+1]).keys();
+            Stack result = new Stack();
+            while(e.hasMoreElements()) {
+                result.push(e.nextElement());
+            }
+            return result;
         }
 
         }
@@ -702,6 +706,7 @@ public final class Util implements Function {
         Hashtable object = new Hashtable();
         ls.set("Object", new Util(28, object));
         object.put("create", new Util(17));
+        object.put("keys", new Util(54));
         Class objectClass = (new Hashtable()).getClass();
         ls.setMethod(objectClass, "__getter__", new Util(8, ls.getMethod(objectClass, "__getter__")));
         ls.setMethod(objectClass, "__setter__", new Util(9, ls.getMethod(objectClass, "__setter__")));

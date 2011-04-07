@@ -1,6 +1,7 @@
 require("xmodule").def("muiMidp", function() {
 
     var mui = {};
+    mui.setHints = require("muiPage").setHints;
     var tickerFn = setTicker;
     setTicker = undefined;
     mui.loading = function() {
@@ -17,7 +18,6 @@ require("xmodule").def("muiMidp", function() {
     mui.callJsonpWebservice = require("Q").callJsonpWebservice; 
 
     mui.showPage = function(page) {
-        console.log("showpage");
         inputelem = {};
         choiceelem = {};
         newForm(page[1].title || "untitled");

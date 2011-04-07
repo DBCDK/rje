@@ -30,6 +30,10 @@ input {
   -webkit-border-radius:10px;
 }
 
+.hint {
+    color: #f00;
+}
+
 .input {
     padding: 10px 0 10px 0;
 }

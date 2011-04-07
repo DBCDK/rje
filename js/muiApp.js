@@ -28,6 +28,7 @@ require("xmodule").def("muiApp",function(){
 
     // In a web environment, the session object is just a simple object.
     mui.session = {};
+    mui.setHints = require("muiPage").setHints;
 
     // move a loading indicator onto the screen
     mui.loading = function() {
@@ -42,7 +43,7 @@ require("xmodule").def("muiApp",function(){
         if(page[0] !== "page") {
             throw("Parameter to showPage must be a jsonml 'page'");
         } 
-        showHTML(pageTransform(page));
+        showHTML(pageTransform(page, this));
     };
     
     // calculate height of dom element
@@ -123,13 +124,12 @@ require("xmodule").def("muiApp",function(){
         var callback = callbacks[fnid];
         __mui__.__callbacks = callbacks = {};
 
-        var muiObject = Object.create(mui);
-        muiObject.formValue = (function () {
+        mui.formValue = (function () {
                 var form = formExtract(gId("current"), {});
                 return function(name) { return form[name]; }
             })();
         try {
-            callback(muiObject);
+            callback(mui);
         } catch(e) {
             callbackError(e);
         }
@@ -169,11 +169,10 @@ require("xmodule").def("muiApp",function(){
     }
 
     function muiMain() {
-        var muiObject = Object.create(mui);
-        muiObject.formValue = function() { };
+        mui.formValue = function() { };
 
         try {
-            main(muiObject);
+            main(mui);
         } catch(e) {
             callbackError(e);
         }

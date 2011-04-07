@@ -10,7 +10,29 @@ require("xmodule").def("muiPage",function(){
         }
     })();
 
+    exports.setHints = function setHints(page, hints) {
+        if(Array.isArray(page)) {
+            var attr = page[1];
+            if(attr && attr.name) {
+                if(this.formValue(attr.name) || attr.value) { 
+                    attr.value = this.formValue(attr.name);
+                }
+                if(hints[attr.name]) {
+                    attr.hint = hints[attr.name];
+                } else if(attr.hint) {
+                    delete attr.hint;
+                }
+            }
+
+            for(var i = 1; i < page.length; ++i) {
+                this.setHints(page[i], hints);
+            }
+        }
+        return page;
+    }
+
     exports.transformFactory = function(config) { return function pageTransform(page, mui) {
+        mui.prevPage = function() { return page; };
         var handlers = {
 
             section: function(html, node) {
@@ -22,6 +44,8 @@ require("xmodule").def("muiPage",function(){
             input: function(html, node) {
                 var value =  jsonml.getAttr(node, "value") || "";
                 var type = jsonml.getAttr(node, "type");
+                var label = jsonml.getAttr(node, "label") || "";
+                var hint = jsonml.getAttr(node, "hint");
 
                 var name = jsonml.getAttr(node, "name");
                 if(!name) {
@@ -29,13 +53,21 @@ require("xmodule").def("muiPage",function(){
                 }
 
                 if(config.midp) {
+                    if(hint) {
+                        if(label) {
+                            label = label + " (" + hint +")";
+                        } else {
+                            label = hint;
+                        }
+                    }
+    
                     types = {
                         textbox: { type: 0, len: 5000},
                         email: {type: 1, len: 20},
                         tel: { type: 3, len: 20}
                         };
                     type = types[type];
-                    inputelem[name] = textfield(node[1].label || "", type.len, type.type, value);
+                    inputelem[name] = textfield(label, type.len, type.type, value);
                     return;
                 }
 
@@ -46,7 +78,6 @@ require("xmodule").def("muiPage",function(){
 
                 var tagAttr = {"class": type, "name": name};
 
-                var label = jsonml.getAttr(node, "label");
                 if(label) {
                     var labelid = uniqId();
                     if(config.html5 && config.placeholder) {
@@ -80,19 +111,29 @@ require("xmodule").def("muiPage",function(){
                     }
                     result.push(["input", tagAttr]);
                 }
+                if(hint) {
+                    result.push(["div", {"class": "hint"}, "*", hint]);
+                }
                 html.push(result);
             },
 
             choice: function(html, node) {
-                console.log("choice: ", node);
                 var defaultValue = jsonml.getAttr(node, "value") || "";
+                var label = jsonml.getAttr(node, "label") || "";
+                var hint = jsonml.getAttr(node, "hint");
 
                 if(config.midp) {
-                    var choiceVal = [choice(node[1].label || "")];
+                    if(hint) {
+                        if(label) {
+                            label = label + " (" + hint +")";
+                        } else {
+                            label = hint;
+                        }
+                    }
+                    var choiceVal = [choice(label)];
                     choiceelem[node[1].name] = choiceVal;
                     for(var i = 2; i < node.length; ++i) {
                         var optionvalue = node[i][1].value;
-                        console.log("choiceoption", optionvalue, defaultValue);
                         
                         addchoice(choiceVal[0], node[i][2], optionvalue === defaultValue);
                         choiceVal.push(optionvalue);
@@ -127,6 +168,9 @@ require("xmodule").def("muiPage",function(){
                     return result;
                 }, result);
                 result.push(select);
+                if(hint) {
+                    result.push(["div", {"class": "hint"}, "*", hint]);
+                }
                 html.push(result);
             },
 
