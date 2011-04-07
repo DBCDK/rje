@@ -30,7 +30,9 @@ Mui Objects are only available to callbacks, and contains the following properti
 - `mui.loading()` indicates loading activity to the user.
 - `mui.callJsonpWebservice(url, callbackParameterName, args, callback)` calls a web service. `url` is the url of the web service, `callbackParameterName` is the parameter to the service which names the [padding function](http://en.wikipedia.org/wiki/JSONP), `args` is an object of arguments which are to be passed to the url, and `callback` is an unary JavaScript function which will be called with result of the web service, or `undefined` if the service fails or times out.
 - `mui.showPage(muiPage)` displays a page that the user can interact with.
-- `mui.form` contains results of form elements that the user interacted with on the previous page, if applicable.
+- `mui.formValue(name)` returns the content of a named form element that the user interacted with on the previous page.
+- `mui.prevPage()` returns previous shown page, if applicable.
+- `mui.setHints(page, hints)` add a hint text to named inputs and choices in the form, - useful for showing errors after input validating. `hints` is an object with names mapping to hint-strings.
 
 Mui Pages are user interface descriptions passed that are to `showPage`. They are written in [JsonML array form](http://en.wikipedia.org/wiki/JsonML) with the addition that JavaScript-functions may also be values some of the places. Mui Pages has the following elements:
 
