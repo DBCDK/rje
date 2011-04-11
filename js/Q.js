@@ -23,7 +23,7 @@ require("xmodule").def("Q",function(){
                 result.push(c);
             } else {
                 c = c.charCodeAt(0);
-                if(c > 255) {
+                if(c > 127) {
                     result.push(escapeUri("&#" + c + ";"));
                 } else {
                     result.push( "%" + (c<16?"0":"") + c.toString(16));
@@ -140,6 +140,51 @@ require("xmodule").def("Q",function(){
             return String.fromCharCode(parseInt(num, 10)); 
         });
         return uri;
+    }
+
+    exports.heap = function(cmp) {
+        return {
+            push: function(arr,elem) {
+                var pos = arr.length;
+                arr.push(elem);
+                while(pos > 0) {
+                    var parentid = 0| ((pos+1)/ 2) - 1;
+                    var parent = arr[parentid];
+                    if(cmp(elem, parent) < 0) {
+                        arr[pos] = parent;
+                        pos = parentid;
+                    } else {
+                        arr[pos] = elem;
+                        pos = 0;
+                    }
+                }
+            },
+            pop: function(arr) {
+                var result = arr[0];
+                var elem = arr.pop();
+                if(arr.length === 0) return result;
+                arr[0] = elem;
+                var pos = 0;
+                for(;;) {
+                    var posnext = 2*pos + 1;
+                    if(posnext >= arr.length) { 
+                        arr[pos] = elem; 
+                        return result;
+                    }
+                    var next = arr[posnext];
+                    if(posnext+1 < arr.length && cmp(next, arr[posnext+1]) > 0) {
+                        ++posnext;
+                        next = arr[posnext];
+                    }
+                    if(cmp(elem, next) < 0) {
+                        arr[pos] = elem;
+                        return result;
+                    }
+                    arr[pos] = next;
+                    pos = posnext;
+                };
+            }
+        }
     }
 
 });

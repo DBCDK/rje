@@ -5,6 +5,13 @@ require("xmodule").def("muiWap",function(){
     var _ = require('underscore')._;
     var Q = require('Q');
 
+    // Express has bug that means that get-requests
+    // doesn't work with international symbols...
+    // Do some monkeypatching, if you are using gets... 
+    //
+    decodeURIComponent = Q.unescapeUri
+    encodeURIComponent = Q.escapeUri
+
     var mainFn = function(mui) {
         mui.showPage(["page", {title: "error"}, ["text", "mui.setMain(...) has not been called"]]);
     }
@@ -51,29 +58,34 @@ require("xmodule").def("muiWap",function(){
 
     clients = {};
 
-    http.createServer(function (req, res) {
-        var muiObject, sid, fn;
-        var params = req.url.split('?')
-        if(params.length > 1) {
-            params.shift();
-            params = params.join('').split('&');
-            params = _.reduce(params, function(acc, elem) {
-                var t = elem.split("=");
-                acc[Q.unescapeUri(t[0])] = Q.unescapeUri(t[1]);
-                return acc;
-            }, {});
-        } else {
-            params = {};
-        }
+    var express = require("express");
+    var app = express.createServer();
 
-        if(params._ && clients[params._]) {
-            muiObject = clients[params._];
+    app.configure(function(){
+        //app.use(express.methodOverride());
+        app.use(express.bodyParser());
+        app.use(express.cookieParser());
+        //app.use(app.router);
+    });
+
+    app.all('/', function(req, res){
+        var muiObject, sid, fn;
+    
+        params = req.body || req.query;
+        console.log(req.cookies);
+        if(req.cookies && req.cookies._) {
+            sid = req.cookies._;
+        } else if(params._ && clients[params._]) {
             sid = params._;
-        } else {
+        } 
+        muiObject = clients[sid];
+        if(!muiObject) {
             muiObject = Object.create(mui);
-            sid = muiObject.__session_id__ = randId();
+            muiObject.__session_id__ = sid = sid || randId();
             muiObject.session = {};
+            res.cookie('_', sid, {maxAge: 5*365*24*60*60*1000});
             muiObject.fns = {};
+
             // mem leak, sessions are never deleted
             clients[sid] = muiObject;
         }
@@ -81,13 +93,21 @@ require("xmodule").def("muiWap",function(){
         muiObject.httpRequest = req;
         muiObject.button = params._B;
         muiObject.formValue = function(name) { return params[name]; };
+        muiObject.storage = {};
+        muiObject.storage.getItem = function() { return 42; };
 
-        fn = muiObject.fns[Q.unescapeUri(params._B || "")] || mainFn;
+        fn = muiObject.fns[Q.unescapeUri(muiObject.button || "")] || mainFn;
         muiObject.fns = {};
         
         delete params._;
         delete params._B;
         fn(muiObject);
-    }).listen(8080);
-    console.log("Listening on port 8080");
+        console.log(params, muiObject.fns);
+
+    });
+    try {
+        app.listen(80);
+    } catch(e) {
+        app.listen(8080);
+    }
 });

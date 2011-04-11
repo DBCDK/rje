@@ -255,7 +255,7 @@ require("xmodule").def("muiPage",function(){
         }
     
         if(config.wap) {
-            var html = ["form", ["input", {type: "hidden", name: "_", value: mui.__session_id__}]];
+            var html = ["form", {method: "GET"}, ["input", {type: "hidden", name: "_", value: mui.__session_id__}]];
             var title = jsonml.getAttr(page, "title") || "untitled";
             jsonml.childReduce(page, nodeHandler, html);
             return [["h1", title], html];
