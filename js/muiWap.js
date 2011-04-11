@@ -46,7 +46,7 @@ require("xmodule").def("muiWap",function(){
                          ["body"].concat(pageTransform(page, this))];
             // TODO: xml/xhtml or text/html or wap depending on client
             this.httpResult.writeHead(200, {
-                'Content-Type': 'text/html; charset=UTF-8',
+                'Content-Type': 'text/html; charset=iso-8859-1',
                 'Expires': (new Date(Date.now()).toUTCString())
             });;
 
@@ -92,6 +92,7 @@ require("xmodule").def("muiWap",function(){
         muiObject.httpResult = res;
         muiObject.httpRequest = req;
         muiObject.button = params._B;
+        console.log("callbackfn", muiObject.button, muiObject.fns);
         muiObject.formValue = function(name) { return params[name]; };
 
         fn = muiObject.fns[Q.unescapeUri(muiObject.button || "")] || mainFn;

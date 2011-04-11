@@ -8,7 +8,6 @@ Q = require("Q");
 // which loads the correct module
 // depending on if we are in a browser
 // or server side javascript
-console.log(Q.features);
 if(Q.features.ssjs) {
     exports.setMain = require("muiWap").setMain;
 } else if(Q.features.browser) {

@@ -262,7 +262,7 @@ require("xmodule").def("muiPage",function(){
             var html = [ "div", ["input", {type: "hidden", name: "_", value: mui.__session_id__}]];
             var title = jsonml.getAttr(page, "title") || "untitled";
             jsonml.childReduce(page, nodeHandler, html);
-            return [["h1", title], ["form", {method: "get", action: "/"}, html]];
+            return [["h1", title], ["form", {method: "post", action: "/"}, html]];
         }
 
     }; };
