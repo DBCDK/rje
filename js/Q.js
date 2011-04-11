@@ -1,5 +1,7 @@
 require("xmodule").def("Q",function(){
 
+    var ssjs;
+
     var randint = exports.randint = function(n) {
         return 0 | (Math.random()*n)
     };
@@ -10,9 +12,13 @@ require("xmodule").def("Q",function(){
 
     var features = exports.features = {
         browser: typeof(navigator) !== "undefined",
-        nodejs: typeof(process) !== "undefined" && process.versions.node !== undefined,
         lightscript: typeof(LightScript) !== "undefined"
     };
+
+    if((!features.browser) && (!features.lightscript)) {
+        features.ssjs = true;
+        ssjs = require("ssjs");
+    }
 
     var urichars = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_~.";
     var escapeUri = exports.escapeUri = function (uri) {
@@ -44,8 +50,8 @@ require("xmodule").def("Q",function(){
 
 
     var executeRemote = exports.executeRemote = function(url) {
-        if(features.nodejs) {
-            urlFetchNodejs(url, function(txt) {
+        if(features.ssjs) {
+            ssjs.urlFetch(url, function(txt) {
                 Function(txt)();
             });
         } else if(features.browser) {
@@ -60,31 +66,6 @@ require("xmodule").def("Q",function(){
             throw "unsupported operation"
         }
     };
-
-    function urlFetchNodejs(url, callback) {
-        var result = [];
-        if(url.slice(0,7) !== "http://") {
-            throw "not http!";
-        }
-        url = url.slice(7);
-        var i = url.indexOf("/");
-        if(i === -1) {
-            host = url;
-            path = "/";
-        } else {
-            host = url.slice(0, i);
-            path = url.slice(i);
-        }
-        var client = require('http').createClient(80, host);
-        var request = client.request('GET', path, {'host': host});
-        request.end();
-
-        request.on('response', function (response) {
-            response.on('data', function(chunk) { result.push(chunk); });
-            response.on('end', function() { callback(result.join("")) });
-        });
-    }
-
 
     var id = 0;
     function uniqId() {

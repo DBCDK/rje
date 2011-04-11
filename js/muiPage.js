@@ -92,9 +92,9 @@ require("xmodule").def("muiPage",function(){
                     result.push(["textarea", tagAttr, value]);                
 
                 } else { // normal input
+                    tagAttr.value = value;
                     if(config.html5) {
                         tagAttr.type = type;
-                        tagAttr.value = value;
                         if(type === "tel" && !config.telInput) {
                             tagAttr.type = "number";
                             
@@ -106,7 +106,7 @@ require("xmodule").def("muiPage",function(){
                         } else if(type === "tel") {
                             tagAttr.style = "-wap-input-format:'*N'";
                             tagAttr.type = "text";
-                            tagAttr.inputmode = "digits";
+                            tagAttr.inputmode = "latin digits";
                         }
                     }
                     result.push(["input", tagAttr]);
@@ -148,7 +148,11 @@ require("xmodule").def("muiPage",function(){
 
                 var label = jsonml.getAttr(node, "label");
                 if(label) {
-                    select.push(["option", {value: ""}, label]);
+                    if(defaultValue) {
+                        select.push(["option", {value: ""}, label]);
+                    } else {
+                        select.push(["option", {value: "", selected: "selected"}, label]);
+                    }
                 }
 
     
@@ -162,7 +166,7 @@ require("xmodule").def("muiPage",function(){
                     }
                     var attrs = { value : value };
                     if(value === defaultValue) {
-                        attrs.selected = "true";
+                        attrs.selected = "selected";
                     }
                     select.push(["option", attrs, node[2]]);
                     return result;
@@ -255,10 +259,10 @@ require("xmodule").def("muiPage",function(){
         }
     
         if(config.wap) {
-            var html = ["form", {method: "GET"}, ["input", {type: "hidden", name: "_", value: mui.__session_id__}]];
+            var html = [ "div", ["input", {type: "hidden", name: "_", value: mui.__session_id__}]];
             var title = jsonml.getAttr(page, "title") || "untitled";
             jsonml.childReduce(page, nodeHandler, html);
-            return [["h1", title], html];
+            return [["h1", title], ["form", {method: "get", action: "/"}, html]];
         }
 
     }; };

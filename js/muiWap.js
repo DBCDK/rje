@@ -1,8 +1,7 @@
 require("xmodule").def("muiWap",function(){
 
-    var http = require('http');
+    var ssjs = require('ssjs');
     var jsonml = require('jsonml');
-    var _ = require('underscore')._;
     var Q = require('Q');
 
     // Express has bug that means that get-requests
@@ -36,18 +35,21 @@ require("xmodule").def("muiWap",function(){
         callJsonpWebservice: function(url, callbackParameterName, args, callback) {
         Q.callJsonpWebservice(url, callbackParameterName, args, callback);
         },
-        // TODO
-        storage: {
-            getItem: function() { },
-            setItem: function() { }
-        },
         showPage: function(page) {
             var title = jsonml.getAttr(page, "title");
             var html =  ["html", { xmlns: "http://www.w3.org/1999/xhtml", "xml:lang": "en"}, 
                          ["head", ["title", title], ["style", {type: "text/css"}, 
-                                                     'body { margin: 1% 2% 1% 2%; font-family: sans-serif; line-height: 130%; }']],
+    'body { margin: 1% 2% 1% 2%; font-family: sans-serif; line-height: 130%; }',
+    '.hint { color: #f00; }',
+    ],
+    ],
                          ["body"].concat(pageTransform(page, this))];
-            this.httpResult.writeHead(200, {'Content-Type': 'text/html'});;
+            // TODO: xml/xhtml or text/html or wap depending on client
+            this.httpResult.writeHead(200, {
+                'Content-Type': 'text/html; charset=UTF-8',
+                'Expires': (new Date(Date.now()).toUTCString())
+            });;
+
             this.httpResult.end(
                 ['<!DOCTYPE html PUBLIC "-//OMA//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">',
                  jsonml.toXml(html)].join(""));
@@ -58,21 +60,10 @@ require("xmodule").def("muiWap",function(){
 
     clients = {};
 
-    var express = require("express");
-    var app = express.createServer();
-
-    app.configure(function(){
-        //app.use(express.methodOverride());
-        app.use(express.bodyParser());
-        app.use(express.cookieParser());
-        //app.use(app.router);
-    });
-
-    app.all('/', function(req, res){
+    ssjs.webserve('/', function(req, res){
         var muiObject, sid, fn;
     
         params = req.body || req.query;
-        console.log(req.cookies);
         if(req.cookies && req.cookies._) {
             sid = req.cookies._;
         } else if(params._ && clients[params._]) {
@@ -86,15 +77,22 @@ require("xmodule").def("muiWap",function(){
             res.cookie('_', sid, {maxAge: 5*365*24*60*60*1000});
             muiObject.fns = {};
 
-            // mem leak, sessions are never deleted
+            // TODO: fix mem leak, sessions are never deleted
             clients[sid] = muiObject;
+
+            // TODO actually back store to disk or database
+            muiObject.storage = (function() {
+                var store = {};
+                return { 
+                    getItem: function(key) { return store[key]; },
+                    setItem: function(key, value) { store[key] = value; }
+                };
+            })();
         }
         muiObject.httpResult = res;
         muiObject.httpRequest = req;
         muiObject.button = params._B;
         muiObject.formValue = function(name) { return params[name]; };
-        muiObject.storage = {};
-        muiObject.storage.getItem = function() { return 42; };
 
         fn = muiObject.fns[Q.unescapeUri(muiObject.button || "")] || mainFn;
         muiObject.fns = {};
@@ -102,12 +100,5 @@ require("xmodule").def("muiWap",function(){
         delete params._;
         delete params._B;
         fn(muiObject);
-        console.log(params, muiObject.fns);
-
     });
-    try {
-        app.listen(80);
-    } catch(e) {
-        app.listen(8080);
-    }
 });
