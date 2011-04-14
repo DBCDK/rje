@@ -11,22 +11,16 @@ require("xmodule").def("muiWap",function(){
     decodeURIComponent = Q.unescapeUri
     encodeURIComponent = Q.escapeUri
 
+    // mainFn is the mui function which will be called by default. 
+    // write an error page, if it has not been defined
     var mainFn = function(mui) {
         mui.showPage(["page", {title: "error"}, ["text", "mui.setMain(...) has not been called"]]);
-    }
-
-    function randId() {
-        var result = "";
-        var cs = "1234567890_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        for(var i=20; i; --i) {
-            result += Q.pick(cs);
-        }
-        return result;
     }
 
     exports.setMain = function(fn) {
         mainFn = fn;
     }
+
     var mui = {
         form: {},
         loading: function() {
@@ -72,7 +66,7 @@ require("xmodule").def("muiWap",function(){
         muiObject = clients[sid];
         if(!muiObject) {
             muiObject = Object.create(mui);
-            muiObject.__session_id__ = sid = sid || randId();
+            muiObject.__session_id__ = sid = sid || Q.uniqId();
             muiObject.session = {};
             res.cookie('_', sid, {maxAge: 5*365*24*60*60*1000});
             muiObject.fns = {};

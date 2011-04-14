@@ -1,26 +1,67 @@
 require("xmodule").def("Q",function(){
+    // # Q is a module that contains various utility functions
 
-    var ssjs;
 
+    // ## Random  
+
+    // shorthand for returning a random number 0 <= x < n
     var randint = exports.randint = function(n) {
         return 0 | (Math.random()*n)
     };
 
+    // pick a random element from a list/string 
+    // - used for creating random identifiers
     var pick = exports.pick = function(a) {
         return a[randint(a.length)];
     };
 
+    // utility function for generating a random id uniq id
+    // the id consist of a random string to make it unguessable
+    // and a numeric sequence number to make it uniq
+    //
+    // Notice random may not be cryptographically strong
+    // so the id is not 100% safe.
+    //
+    // The id is both plain uri'able and also usable as a 
+    // JavaScript identifier
+    var id = 0;
+    exports.uniqId = function uniqId() {
+        var letters = 'qwertyuiopasdfghjklzxcvbnmQWERTYIUOPASDFGHJKLZXCVBNM_';
+        var result = pick(letters);
+        for(var i = 0; i < 10; ++i) {
+            result += pick(letters+"1234567890");
+        }
+        result += ++id;
+        return result;
+    }
+    
+
+    // ## Feature check
     var features = exports.features = {
         browser: typeof(navigator) !== "undefined",
         lightscript: typeof(LightScript) !== "undefined"
     };
 
+    // feature check - server side javascript - only require ssjs, if on server
+    var ssjs;
     if((!features.browser) && (!features.lightscript)) {
         features.ssjs = true;
         ssjs = require("ssjs");
     }
 
+    // ## Function for (un-/)escaping URIS
+    // The uri escape/unescape functions in JavaScript 
+    // are, by the standard, not fully compatible
+    // with the way escapes are done in the browser.
+    // These functions works instead.
+    // 
+    // Notice that unescapeUri(escapeUri(x)) may also unescape
+    // some &#NNN; as that is the way it is escaped.
+    
+    // Valid characters in URIs
     var urichars = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_~.";
+
+    // An uri.
     var escapeUri = exports.escapeUri = function (uri) {
         var result = [];
         for(var i=0;i<uri.length;++i) {
@@ -39,6 +80,24 @@ require("xmodule").def("Q",function(){
         return result.join("");
     };
 
+    // unescape uri
+    exports.unescapeUri = function(uri) {
+        uri = uri.replace(RegExp("((\\+)|%([0-9a-fA-F][0-9a-fA-F]))", "g"), 
+                          function(_1,_2,plus,hexcode) { 
+                              if(plus) {
+                                  return " ";
+                              } else {
+                                  return String.fromCharCode(parseInt(hexcode, 16));
+                              }
+                          })
+        uri = uri.replace(RegExp("&#([0-9][0-9][0-9]*);", "g"), function(_, num) { 
+            return String.fromCharCode(parseInt(num, 10)); 
+        });
+        return uri;
+    }
+
+    // when building an uri, this is a shorthand for making the
+    // get-request string
     var encodeUrlParameters = exports.encodeUrlParameters = function (args) {
         var result = [];
         var name;
@@ -49,6 +108,10 @@ require("xmodule").def("Q",function(){
     }
 
 
+    // # Cross platform http requests
+
+    // Function for executing code residing on a remote server
+    // - this is used to be able to run browser cross-domain etc.
     var executeRemote = exports.executeRemote = function(url) {
         if(features.ssjs) {
             ssjs.urlFetch(url, function(txt) {
@@ -67,17 +130,7 @@ require("xmodule").def("Q",function(){
         }
     };
 
-    var id = 0;
-    function uniqId() {
-        var letters = 'qwertyuiopasdfghjklzxcvbnmQWERTYIUOPASDFGHJKLZXCVBNM_' // +'$' $ doesn't work with our webservice!
-        var result = pick(letters);
-        for(var i = 0; i < 10; ++i) {
-            result += pick(letters+"1234567890");
-        }
-        result += ++id;
-        return result;
-    }
-    
+    // 
     exports.callJsonpWebservice = function(url, callbackParameterName, args, callback) {
         // clone args, as we want to add a jsonp-callback-name-property
         // without altering the original parameter
@@ -105,23 +158,6 @@ require("xmodule").def("Q",function(){
         executeRemote(url + "?" + encodeUrlParameters(args));
     }
 
-
-    // Fixed uri escape. JavaScripts escape, encodeURI, ... are buggy.
-    // These should work.
-    exports.unescapeUri = function(uri) {
-        uri = uri.replace(RegExp("((\\+)|%([0-9a-fA-F][0-9a-fA-F]))", "g"), 
-                          function(_1,_2,plus,hexcode) { 
-                              if(plus) {
-                                  return " ";
-                              } else {
-                                  return String.fromCharCode(parseInt(hexcode, 16));
-                              }
-                          })
-        uri = uri.replace(RegExp("&#([0-9][0-9][0-9]*);", "g"), function(_, num) { 
-            return String.fromCharCode(parseInt(num, 10)); 
-        });
-        return uri;
-    }
 
     exports.heap = function(cmp) {
         return {
