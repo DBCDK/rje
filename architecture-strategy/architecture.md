@@ -1,11 +1,11 @@
 Vi sidder i spørgetjenesteprojektet forøjeblikket med et mobilplatforms-arkitekturvalg mellem to muligheder:
 
-- den nuværende implementation (med super portablet abstraktionslag, der kan virke på tværs af alt)
-- ren JavaScript implementation (dårligere platformsupport, men lettere at udvikle og vedligeholde, tilstrækkelig ifht. mobile.ting strategi)
+- den nuværende implementation (med portablet abstraktionslag, der kan virke på tværs af alt)
+- ren JavaScript implementation (dårligere platformsupport, men lettere at udvikle og vedligeholde, tilstrækkelig ifht. bla. mobile.ting strategi)
 
-og vil gerne have teknisk arkitekturforums holdning til hvilken retning der er at foretrække.
+Forøjeblikket hælder jeg mest til at gå over til en ren JavaScript implementation, men begge dele er mulige, og hvis teknisk arkitekturforum har en holdning til hvilken retning der er at foretrække, vil det være rart at få med.
 
-De følgende afsnit beskrive de to arkitekturmulighede, samt sammenligner dem. De er skrevet på engelsk da fagterminologien ellers ville give et rodet sprog.
+De følgende afsnit beskrive de to arkitekturmuligheder, samt sammenligner dem. De er skrevet på engelsk da fagterminologien ellers ville give et rodet sprog.
 
 # Current architecture
 
@@ -46,3 +46,7 @@ The current implementation require maintaining and updating the abstraction laye
 A JavaScript-App architecture has less code maintenance.
 
 The JavaScript-App approach allows easier access to the JavaScript/HTML/CSS-api, as it does not need to be abstract on three backends, but it also adds limitations as it is not possible to go beyond the HTML-model. (PhoneGap, J2ME and WAP-server allows integration with platform-specific code beyond html, example: networking)
+
+# Summary
+
+Switching to a JavaScript only approach would make development and maintenance easier, at the tradeoff of possible future features and portability. For our use case, this seems to me like a sensible tradeoff.

@@ -1,0 +1,26 @@
+- Autopopulated list for search results
+
+- Online/offline
+  - Widget spec 
+  - Cache manifest
+  - mvcc storage
+  - user profiles
+
+- Test
+  - Unit testing
+  - UI-interaction testing
+
+- switch from abstraction layer to html4.5
+- different ui per device
+- jsonml2dom - preserve functions etc.
+
+- Docs
+    - Strategy doc, and platforms
+        
+    - API - developer manual
+    - internal documentation
+
+- meta JavaScript tool
+  - format
+  - lint
+  - transform
