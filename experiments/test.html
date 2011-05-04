@@ -1,0 +1,63 @@
+<html>
+<head>
+<!-- currently only jquery due to zepto issue #146, - should be simple to fix though 
+<script src="zepto.js"></script>
+-->
+<script src="http://code.jquery.com/jquery-1.6.min.js"></script>
+<script>
+    x = 0;
+
+function fibcallback() {
+    var a = 1, b = 1, j = 0;
+    return function fib(append) {
+        var i, t;
+        setTimeout(function() {
+        for(i=0;i<10;++i) {
+            ++j;
+            var elem = document.createElement("div");
+            elem.innerHTML = j + ": " + a;
+            append(elem);
+            t = a + b;
+            a = b; b = t;
+        }
+        more(fib);}, 1000);
+    }
+}
+
+function more(fn) {
+    $("#morecontainer").append('<div id="more">more...</div>');
+    function update() {
+        $(document).unbind("scroll", onScreen);
+        $("#more").html("loading...");
+        fn(
+            function(elem) {
+                $("#more") && $("#more").remove();
+                $("#morecontainer").append(elem);
+            }
+        );
+    }
+    function onScreen() {
+        if($("#more").offset().top < window.innerHeight+window.pageYOffset) {
+            update();
+        } 
+    }
+    $(document).bind("scroll", onScreen);
+    $("#more").bind("click", update);
+    onScreen();
+}
+
+function hitlist() {
+};
+
+function main() {
+    //document.write("foo");
+    more(fibcallback());
+}
+
+</script>
+</head>
+<body onload="main()">
+<div id="morecontainer">
+Fibonacci numbers...
+</div>
+</body>
