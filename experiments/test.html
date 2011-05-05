@@ -5,47 +5,18 @@
 -->
 <script src="zepto.js"></script>
 <script src="jsonml.js"></script>
+<script src="Q.js"></script>
 <script src="muiPage.js"></script>
 <script src="mui.js"></script>
 <link rel="stylesheet" href="mui.css" />
-<script>
-    x = 0;
-
-function fibcallback() {
-    var a = 1, b = 1, j = 0;
-    return function fib(mui) {
-        var i, t;
-        setTimeout(function() {
-        for(i=0;i<10;++i) {
-            ++j;
-            var elem = document.createElement("div");
-            elem.innerHTML = j + ": " + a;
-            mui.append(elem);
-            t = a + b;
-            a = b; b = t;
-        }
-        if(j<50) mui.more(fib);}, 1000);
-    }
-}
-
-function main() {
-    mui.more(fibcallback());
-}
-
-function fibclick() {
-    mui.showPage(["page", "Hello world"]);
-}
-
-</script>
+<script src="main.js"></script>
 </head>
-<body onload="main()">
+
+<body>
 <div id="container">
 <div id="current">
-<button onclick="fibclick()">foo</button>
-<div id="morecontainer" class="contentbox" >
-Fibonacci numbers...
 </div>
 <div class="contentend"></div>
 </div>
-</div>
+<div id="loading">Loading...</div>
 </body>

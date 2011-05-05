@@ -56,7 +56,7 @@ muiPage = (function(exports, jsonml) {
                     throw "input widgets must have a type attribute";
                 }
 
-                var tagAttr = {"class": type, "name": name};
+                var tagAttr = {"class": type, "name": name, "id": "MUI_FORM_" + name};
 
                 if(label) {
                     var labelid = uniqId();
