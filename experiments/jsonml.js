@@ -332,7 +332,7 @@ exports.visit = function visit(jsonml, fnlist) {
     fnlist.forEach(function(fn) { fn(jsonml); });
 }
 
-exports.insertEmptyAttributes = function(jsonml) {
+exports.insertEmptyAttributes = function insertEmptyAttributes(jsonml) {
     if(!plainObject(jsonml[1])) {
         jsonml.unshift(jsonml[0]);
         jsonml[1] = {};
@@ -341,6 +341,26 @@ exports.insertEmptyAttributes = function(jsonml) {
 
 function plainObject(obj) {
     return typeof obj === "object" && obj !== null && obj.constructor === Object;
+}
+
+exports.toDOM = function toDOM(jsonml) {
+    if(Array.isArray(jsonml)) {
+        exports.insertEmptyAttributes(jsonml);
+        var elem = document.createElement(jsonml[0]);
+        var attr = jsonml[1];
+        for(var name in attr) {
+            elem[{
+                'class': 'className',
+                'for': 'htmlFor'
+            }[name] || name] = attr[name];
+        }
+        for(var i=2;i<jsonml.length;++i) {
+            elem.appendChild(toDOM(jsonml[i]))
+        }
+    } else if(typeof jsonml === "string") {
+        var elem = document.createTextNode(jsonml);
+    }
+    return elem;
 }
 
 return exports;

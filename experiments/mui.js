@@ -112,12 +112,16 @@ mui = (function(exports, $) {
     }
 
     exports.showPage = function(elem) {
+        if(elem[0] === "page") { 
+            elem = pageTransform(elem, this);
+            elem = elem.map(jsonml.toXml).join("")
+        } else {
+            elem = jsonml.toDOM(elem);
+        }
         notLoading();
-        
-        elem = pageTransform(elem, this);
-        console.log("slidein", JSON.stringify(elem));
+        console.log("slidein", elem);
         $("#current").before(
-            $("<div>").attr("id", "next").html(elem.map(jsonml.toXml).join("")));
+            $("<div>").attr("id", "next").append(elem));
         $("#current").css("top", - $("#next").height());
         $("#current").attr("id", "prev");
         $("#next").attr("id", "current");

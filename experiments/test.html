@@ -9,9 +9,19 @@
 <script src="muiPage.js"></script>
 <script src="mui.js"></script>
 <link rel="stylesheet" href="mui.css" />
+<!--
 <script src="main.js"></script>
+-->
+<script>
+function main(mui) {
+    //mui.showPage(["page", {title: "testpage"},
+    //    ["section", ["text", "Hello"]]]);
+    mui.showPage(["div", {onclick: function() { alert("blah")}},
+        ["section", ["text", "Hello"]]]);
+}
+mui.setMain(main);
+</script>
 </head>
-
 <body>
 <div id="container">
 <div id="current">
