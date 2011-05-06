@@ -25,13 +25,19 @@ var mui = (function(exports, $) {
         return page;
     }
     
+    var morefn = undefined;
     function transformFactory(config) { 
         return function pageTransform(page, mui) {
             mui.prevPage = function() { return page; };
             var handlers = {
     
                 section: function(html, node) {
-                    var result = ["div", {"class": "contentbox"}];
+                    attr = {"class": "contentbox"};
+                    if(node[1] && node[1].autocontent) {
+                        attr.id = "morecontainer";
+                        morefn = node[1].autocontent;
+                    }
+                    var result = ["div", attr];
                     jsonml.childReduce(node, nodeHandler, result);
                     html.push(result);
                 },
@@ -207,6 +213,8 @@ var mui = (function(exports, $) {
         }
         return acc;
     }
+
+    mui.formValue = function() { };
     
     var callbacks = {};
     __mui__.__callbacks = callbacks;
@@ -219,10 +227,8 @@ var mui = (function(exports, $) {
                 return function(name) { return form[name]; }
             })();
         try {
-            console.log("callback", callback, mui);
             callback(mui);
         } catch(e) {
-            console.log("callback error", e);
             callbackError(e);
         }
     }
@@ -320,20 +326,20 @@ var mui = (function(exports, $) {
     
     //exports.callJsonpWebservice = Q.callJsonpWebservice;
     
+    var main;
     exports.setMain = function(muiMain) {
-        console.log("setmain");
         $('document').ready(function() { 
-                console.log("ready");
+                main = muiMain;
                 muiMain(mui); });
     };
     
     exports.loading = function() {
         $("#loading").css("top", "50px");
     };
+
     function notLoading() {
         $("#loading").css("top", "-50px");
     }
-    
     
     function toHTML(elem) {
         if(Array.isArray(elem)) {
@@ -343,6 +349,7 @@ var mui = (function(exports, $) {
     }
     
     exports.showPage = function(elem) {
+        $(document).unbind('scroll');
         if(elem[0] === "page") { 
             elem = pageTransform(elem, this);
             elem = elem.map(jsonml.toXml).join("")
@@ -350,21 +357,28 @@ var mui = (function(exports, $) {
             elem = jsonml.toDOM(elem);
         }
         notLoading();
-        console.log("slidein", elem);
-        $("#current").before(
-                             $("<div>").attr("id", "next").append(elem));
-        $("#current").css("top", - $("#next").height());
-        $("#current").attr("id", "prev");
+        $("#current").before( $("<div>").attr("id", "next")
+                                        .append(elem)
+                                        )
+                     .css("top", - $("#next").height())
+                     .attr("id", "prev");
         $("#next").attr("id", "current");
+        if($("#morecontainer")) {
+            mui.more(morefn);
+        }
         setTimeout('$("#prev").remove()', 500);
     }
     
+    function updateLayout() {
+        $("#prev")&&$("#prev").css("top", - $("#current").height())
+    }
     
     exports.more = function more(fn) {
         $("#morecontainer").append('<div id="more"><a>more...</a></div>');
         function update() {
             $(document).unbind("scroll", onScreen);
             $("#more").html("loading...");
+            updateLayout();
             fn(mui);
         }
         function onScreen() {
@@ -379,7 +393,8 @@ var mui = (function(exports, $) {
     
     exports.append = function(elem) {
         $("#more") && $("#more").remove();
-        $("#morecontainer").append(elem);
+        $("#morecontainer").append($("<div>").append(elem));
+        updateLayout();
     }
     
 return mui; })({},$);
