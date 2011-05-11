@@ -23,6 +23,7 @@ function main(mui) {
           ["option", {value: "school2"}, "Gymnasium"],
           ["option", {value: "school3"}, "Videreg\xe5ende uddannelse"],
           ["option", {value: "school4"}, "Universitet/Forskning"] ]],
+        ["div", {"class": "test"}, "testing..."],
         ["button", {fn: ask}, "Sp\xf8rg"],
         ["button", {fn: settings}, "Indstillinger"] ]);
 }

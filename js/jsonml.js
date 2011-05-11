@@ -10,7 +10,7 @@
 // Not depending on any libraries, and also
 // avoid regular expressions to be possible to 
 // run on javascript-subsets on j2me devices.
-require("xmodule").def("jsonml",function(){
+var jsonml = (function(exports){
 
 // ## XML parser
 
@@ -327,4 +327,41 @@ function JsonML_Error(desc) {
     throw desc;
 }
 
-});
+exports.visit = function visit(jsonml, fnlist) {
+    jsonml.forEach(function(elem) { if(Array.isArray(elem)) visit(elem); });
+    fnlist.forEach(function(fn) { fn(jsonml); });
+}
+
+exports.insertEmptyAttributes = function insertEmptyAttributes(jsonml) {
+    if(!plainObject(jsonml[1])) {
+        jsonml.unshift(jsonml[0]);
+        jsonml[1] = {};
+    }
+}
+
+function plainObject(obj) {
+    return typeof obj === "object" && obj !== null && obj.constructor === Object;
+}
+
+exports.toDOM = function toDOM(jsonml) {
+    if(Array.isArray(jsonml)) {
+        exports.insertEmptyAttributes(jsonml);
+        var elem = document.createElement(jsonml[0]);
+        var attr = jsonml[1];
+        for(var name in attr) {
+            elem[{
+                'class': 'className',
+                'for': 'htmlFor'
+            }[name] || name] = attr[name];
+        }
+        for(var i=2;i<jsonml.length;++i) {
+            elem.appendChild(toDOM(jsonml[i]))
+        }
+    } else if(typeof jsonml === "string") {
+        var elem = document.createTextNode(jsonml);
+    }
+    return elem;
+}
+
+return exports;
+})({});
