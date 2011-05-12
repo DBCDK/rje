@@ -187,12 +187,12 @@ var mui = (function(exports, $, global) {
 
                     var fn = jsonml.getAttr(node, "fn");
                     var onclick = function() { 
-                            mui.formValue = (function() {
+                            /* mui.formValue = (function() {
                                 var form = formExtract(gId("current"), {});
                                 return function(name) {
                                     return form[name];
                                 }
-                            })();
+                            })(); */
                             fn(mui) 
                         }
                     var attr = {
@@ -287,7 +287,9 @@ var mui = (function(exports, $, global) {
         return acc;
     }
 
-    mui.formValue = function() {};
+    exports.formValue = function(name) {
+        return $("#MUI_FORM_" + name).val();
+    };
 
     // Valid characters in URIs
     var urichars = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_~.";
@@ -411,23 +413,99 @@ var mui = (function(exports, $, global) {
         $("#loading").css("top", "-50px");
     }
 
+    function fixup() {
+        var $page = $("#next page");
+        var title = $page.attr("title");
+        if(title) {
+            $page.prepend($("<div>").addClass("header").text(title));
+        }
+        $page.append($("<div>").addClass("contentend"));
+        $page.replaceWith($page.contents());
+
+        $("#next section").replaceWith(function() {
+            var $result = $("<div>").addClass("contentbox").append($(this).contents());
+            if($(this).prop("autocontent")) {
+               $result.attr("id", "morecontainer");
+               morefn = $(this).prop("autocontent");
+            }
+            return $result;
+        });
+
+        $("#next button").each(function() {
+            if(this.fn) {
+                $(this).replaceWith(
+                    $("<div>").addClass("button").append(
+                        $("<a>").append($(this).contents()))
+                        .one("click", (function(fn) {
+                            return function() { fn(mui); }})(this.fn))
+                );
+            }
+        });
+
+        $("#next input").each(function() {
+            var $this = $(this);
+
+            var $t = $('<div class="input">');
+            $this.replaceWith($t);
+            $t.append($this);
+
+            var type = $this.attr("type");
+            var name = $this.attr("name");
+            var label = $this.prop("label");
+            var hint = $this.prop("hint");
+
+            if(type === "textbox") {
+                var $new = $("<textarea>");
+                $new.attr("name", name)
+                    .val($this.val());
+                $this.replaceWith($new);
+                $this = $new;
+            } 
+
+            if(hint) {
+                $this.after($('<div class="hint">').text("* " + hint));
+            }
+
+            $this.attr("id", "MUI_FORM_" + name);
+
+            // TODO: modernizr placeholder degradation
+            $this.attr("placeholder", label);
+
+            //$this.replaceWith($('<div class="input">').append($this));
+        });
+
+        $("#next choice").replaceWith(function() {
+            $this = $(this);
+            var name = $this.prop("name");
+            $result = $("<select>").attr("name", name)
+                        .append('<option value="">' + $this.prop("label") + "</option>")
+                        .append($this.contents()).val($this.prop("value"));
+            $result.attr("id", "MUI_FORM_" + name);
+
+            return $('<div class="input">').append($result);
+        });
+    }
+
     exports.showPage = function(elem) {
+        previousPage = elem;
+        console.log("showPage", JSON.stringify(elem));
         $(document).unbind('scroll');
         $("#current").before($("<div>").attr("id", "next"));
-        if (elem[0] === "page") {
+        if (false && elem[0] === "page") {
             elem = pageTransform(elem, this);
             //elem = elem.map(jsonml.toXml).join("")
             elem = elem.forEach(function(node) {
                 $("#next").append(jsonml.toDOM(node));
             });
-        } else {
+        } else { 
             elem = jsonml.toDOM(elem);
             $("#next").append(elem);
-        }
+            fixup();
+         } 
         notLoading();
         $("#current").css("top", -$("#next").height()).attr("id", "prev");
         $("#next").attr("id", "current");
-        if ($("#morecontainer")) {
+        if ($("#current #morecontainer")) {
             mui.more(morefn);
         }
         setTimeout('$("#prev").remove()', 500);
