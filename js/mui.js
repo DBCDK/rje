@@ -27,20 +27,6 @@ var mui = (function(exports, $, global) {
     // In a web environment, the session object is just a simple object.
     mui.session = {};
 
-    // Error to show, when something goes wrong
-    function callbackError(e) {
-        mui.showPage(["page",
-        {
-            title: "Error"
-        }, ["text", e.toString()],
-            ["button",
-            {
-                fn: main
-            }, "Back to start"]
-        ]);
-        throw e;
-    }
-
     exports.formValue = function(name) {
         return $("#MUI_FORM_" + name).val();
     };
@@ -79,46 +65,9 @@ var mui = (function(exports, $, global) {
     }
 
 
-    // Function for executing code residing on a remote server
-    // - this is used to be able to run browser cross-domain etc.
-    var executeRemote = exports.executeRemote = function(url) {
-        var scriptTag = document.createElement("script");
-        scriptTag.setAttribute("src", url);
-        document.getElementsByTagName("head")[0].appendChild(scriptTag);
-    };
-
-    // 
     exports.callJsonpWebservice = function(url, callbackParameterName, args, callback) {
-        // clone args, as we want to add a jsonp-callback-name-property
-        // without altering the original parameter
-        args = Object.create(args);
-
-
-        // temporary global callback function, that deletes itself after used
-        var callbackName = "_Q_" + uniqId();
-        var callbackFn = global[callbackName] = function(data) {
-            if (global[callbackName]) {
-                global[callbackName] = undefined;
-                try {
-                    callback(data);
-                } catch (e) {
-                    callbackError(e);
-                }
-            }
-        }
-        // if we haven't got an answer after one minute, assume that an error has occured, 
-        // and call the callback, without any arguments.
-        setTimeout(callbackFn, 60000);
-
-        args[callbackParameterName] = callbackName;
-
-        executeRemote(url + "?" + encodeUrlParameters(args));
-    }
-
-    nextid = 0;
-
-    function uniqId() {
-        return "MUI_" + (++nextid);
+        url = url + "?" + encodeUrlParameters(args) + "&" + callbackParameterName + "=?";
+        $.ajax(url, { dataType: "jsonp", success: callback, error: function() { callback(); } });
     }
 
     exports.storage = {};
@@ -135,7 +84,7 @@ var mui = (function(exports, $, global) {
     exports.setMain = function(muiMain) {
         $('document').ready(function() {
 
-            if(global.localStorage) {
+            if(typeof localStorage !== undefined) {
                 exports.storage = localStorage;
             } else {
                 var store = {};
@@ -283,4 +232,5 @@ var mui = (function(exports, $, global) {
 
 	
     return mui;
+
 })({}, $, this /*global*/);
