@@ -7,14 +7,14 @@
   <meta name="author" content="DBC/rje">
   <meta name="HandheldFriendly" content="True">
   <meta name="MobileOptimized" content="320"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png" !-- 114x114px -->
-  <link rel="shortcut icon" href="apple-touch-icon-precomposed.png">
+  <meta name="viewport" content="width=320, initial-scale=1.0">
+  <!--meta name="viewport" content="width=device-width, initial-scale=1.0"-->
+  <link rel="apple-touch-icon-precomposed" href="icon.png" !-- 114x114px -->
+  <link rel="shortcut icon" href="icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <link rel="apple-touch-startup-image" href="splash.png" !-- 320x460px -->
   <link rel="stylesheet" href="mui/mui.css">
-  <script src="js/libs/modernizr-custom.js"></script>
 </head>
 
 <body>
@@ -24,67 +24,9 @@
 </div>
 <div id="loading">Loading...</div>
 
-<script src="mui/es5-shim.js"></script>
-<script src="mui/jquery-1.6.min.js"></script>
+<script src="mui/es5shim.js"></script>
+<script src="mui/jquery16min.js"></script>
 <script src="mui/jsonml.js"></script>
 <script src="mui/mui.js"></script>
-<script>
-
-function searchresults(query) {
-    var first = true;
-    var start = 1;
-    var step = 5;
-    var hitcount;
-    if(!query) {
-        return function(mui) {
-            mui.append("");
-        }
-    }
-    return function resultsFn(mui) {
-        mui.callJsonpWebservice('http://opensearch.addi.dk/1.0/', 'callback', 
-        {
-            action: 'search', 
-            query: query,
-            source: 'bibliotekdk', 
-            start: start, 
-            stepValue: step, 
-            outputType: 'json'}, 
-            function(data) { 
-                console.log("result:", data); 
-                if(first) {
-                    hitcount =  +data.searchResponse.result.hitCount.$;
-                    mui.append('Searching for "' + query + '" yielded ' + hitcount + ' hits');
-                    first = false;
-                }
-                var results = data.searchResponse.result.searchResult;
-                console.log("results:", results); 
-                if(results) {
-                for(var i=0; i < results.length;++i) {
-                    mui.append('<hr>');
-                    mui.append(
-                        '<div>' + (start+i) + ": "+ JSON.stringify(results[i].collection.object.record.title)+ "<br />"+
-                        JSON.stringify(results[i].collection.object.record.creator) + "</div>"
-
-                    );
-                    console.log(JSON.stringify(results[i].collection.object.record.title));
-                }
-                start+=step;
-                if(start <= hitcount) {
-                    mui.more(resultsFn);
-                }
-                } 
-            });
-    }
-}
-function search(mui) {
-    var query = mui.formValue("query");
-    mui.showPage(["page", {title: "Dynamic result"},
-        ["section",
-        ["section", ["input", {type: "text", name: "query", label: "Søgestreng"}]],
-        ["button", {fn: search}, "Søg"]],
-        ["section", {autocontent: searchresults(query)}]]
-        );
-}
-mui.setMain(search);
-</script>
+<script src="main.js"></script>
 </body>

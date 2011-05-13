@@ -7,25 +7,25 @@ body {
     padding: 0; 
 /*    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAABCAIAAACdaSOZAAAAAXNSR0IArs4c6QAAABZJREFUCNdjPHrmCgMC/GNjY2NgYAAAN00Dd2Fg5+4AAAAASUVORK5CYII="); */
     font-family: Helvetica, sans-serif;
-    font-size: 12px;
+    font-size: 15px;
 }
 
 textarea {
     width: 80%;
-    font-size: 12px;
+    font-size: 15px;
     border-radius: 10px;
   -webkit-border-radius:10px;
 }
 
 select {
     border-radius: 10px;
-    font-size: 12px;
+    font-size: 15px;
   -webkit-border-radius:10px;
 }
 
 input {
     width: 80%;
-    font-size: 12px;
+    font-size: 15px;
     border-radius: 10px;
   -webkit-border-radius:10px;
 }
@@ -67,7 +67,7 @@ input {
     border-width: 1px 0px 1px 0px;
     text-align: center;
     padding: 10px;
-    font-size: 16px;
+    font-size: 22px;
     height: 22px;
     color: #fff;
     font-weight: bold;

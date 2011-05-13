@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="dk.dbc.mui.sample" version="1.0.0">
+<name short="Søg!">Søg-eksempel-app!</name>
+
+<description> Sample app using mui - search app in the danish library base</description>
+
+<author href="http://www.dbc.dk/"> DBC / rje </author>
+<icon src="icon.png" gap:role="default" />
+<gap:splach src="splash.png" gap:role="default" />
+
+<gap:platforms>
+<gap:platform name="android" minVersion="1.6" />
+<gap:platform name="webos" />
+<gap:platform name="symbian.wrt" />
+<gap:platform name="blackberry" project="widgets"/>
+</gap:platforms>
+
+
+<!-- feature name="http://api.phonegap.com/1.0/network" required="false"/ -->
+
+<preference name="autorotate" value="true" readonly="false"/>
+</widget>
