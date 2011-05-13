@@ -108,7 +108,7 @@ var mui = (function(exports, $, global) {
     };
 
     function notLoading() {
-        $("#loading").css("top", "-50px");
+        $("#loading").css("top", "-100px");
     }
 
     function fixup() {

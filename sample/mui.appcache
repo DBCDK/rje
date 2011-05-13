@@ -1,0 +1,18 @@
+CACHE MANIFEST
+
+apple-touch-icon-precomposed.png
+splash.png
+mui/mui.css
+mui/mui.js
+mui/jsonml.js
+mui/es5-shim.js
+mui/jquery-1.6.min.js
+#mui/modernizr.js
+mui/jsonml.js
+mui/mui.js
+
+NETWORK:
+
+http://opensearch.addi.dk/api/
+
+FALLBACK:
