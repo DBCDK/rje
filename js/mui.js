@@ -24,7 +24,6 @@ var mui = (function(exports, $, global) {
 
     var morefn = undefined;
 
-    // In a web environment, the session object is just a simple object.
     mui.session = {};
 
     exports.formValue = function(name) {
@@ -38,7 +37,7 @@ var mui = (function(exports, $, global) {
     var escapeUri = exports.escapeUri = function(uri) {
         var result = [];
         for (var i = 0; i < uri.length; ++i) {
-            var c = uri[i];
+            var c = uri.charAt(i);
             if (urichars.indexOf(c) >= 0) {
                 result.push(c);
             } else {
@@ -78,30 +77,25 @@ var mui = (function(exports, $, global) {
         return previousPage;
     };
 
-    //exports.callJsonpWebservice = Q.callJsonpWebservice;
-    var main;
-
-    exports.setMain = function(muiMain) {
-        $('document').ready(function() {
-
-            if(typeof localStorage !== undefined) {
-                exports.storage = localStorage;
-            } else {
-                var store = {};
-                exports.storage = {
-                    setItem: function(key, val) {
-                        store[key] = val;
-                    },
-                    getItem: function(key) {
-                        return store[key];
-                    }
+    exports.setMain = function(fn) { main = fn; };
+    var main = function(mui) { exports.setMain = function(fn) { fn(mui); }};
+    var startme = false;
+    $(document).ready(function() {
+        if(typeof localStorage !== "undefined") {
+            exports.storage = localStorage;
+        } else {
+            var store = {};
+            exports.storage = {
+                setItem: function(key, val) {
+                    store[key] = val;
+                },
+                getItem: function(key) {
+                    return store[key];
                 }
             }
-
-            main = muiMain;
-            muiMain(mui);
-        });
-    };
+        }
+        main(exports);
+     });
 
     exports.loading = function() {
         $("#loading").css("top", "50px");
@@ -147,10 +141,10 @@ var mui = (function(exports, $, global) {
             $this.replaceWith($t);
             $t.append($this);
 
-            var type = $this.attr("type");
-            var name = $this.attr("name");
-            var label = $this.prop("label");
-            var hint = $this.prop("hint");
+            var name = this.name;
+            var type = this.type;
+            var label = this.label;
+            var hint = this.hint;
 
             if(type === "textbox") {
                 var $new = $("<textarea>");
