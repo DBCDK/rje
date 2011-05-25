@@ -1,6 +1,6 @@
 - merge jqm and default version
-- doc - developer / markdown
 - QA - jshint etc.
+- doc - developer / markdown
 - update autopopulated list for search results
 - doc - intenal / docco
 - testing - unit testing
