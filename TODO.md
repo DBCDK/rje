@@ -1,0 +1,10 @@
+- merge jqm and default version
+- doc - developer / markdown
+- QA - jshint etc.
+- update autopopulated list for search results
+- doc - intenal / docco
+- testing - unit testing
+- testing - selenium support
+- QA - ff, ie, opera, oldandroid
+- Offline storage - mvcc on backbone
+- JavaScript pretty printer and transformation

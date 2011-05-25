@@ -98,12 +98,89 @@ var mui = (function(exports, $, global) {
      });
 
     exports.loading = function() {
-        $("#loading").css("top", "50px");
+        if($.mobile) {
+            $.mobile.pageLoading();
+        } else {
+            $("#loading").css("top", "50px");
+        }
     };
 
     function notLoading() {
-        $("#loading").css("top", "-100px");
+        if($.mobile) {
+            $.mobile.pageLoading(true);
+        } else {
+            $("#loading").css("top", "-100px");
+        }
     }
+
+    function childTransform(dst, src) {
+        for(var i=2;i<src.length;++i) {
+            dst.push(transform(src[i]));
+        }
+        return dst;
+    }
+
+    function transform(elem) {
+        if(!Array.isArray(elem)) {
+            return elem;
+        }
+
+        var tag = elem[0];
+        var attr = elem[1];
+
+        if(tag === "page") {
+            return ["div", {"data-role": "page", id: "current"},
+                ["div", {"data-role": "header"}, ["h1", attr.title || untitled]],
+                childTransform(["div", {"data-role": "content"}], elem)];
+
+        } else if(tag === "section") {
+            tag = "div";
+            if(attr.autocontent) {
+               $("#morecontainer").attr("id", "");
+               attr.id = "morecontainer";
+               morefn = autocontent("autocontent");
+            }
+
+        } else if(tag === "button" && attr.fn) {
+            attr = {"onclick": (function(fn) { return function() { fn(mui) } })(attr.fn)};
+
+        } else if(tag === "input") {
+            var result = ["div", /* {"data-role": "fieldcontain"} */]
+            attr.id = "MUI_FORM_" + attr.name;
+            /* if(attr.label) {
+                result.push(["label", {"for": attr.id}, attr.label, ":"]);
+            } */
+            attr.placeholder = attr.label;
+
+            if(attr.type !== "textbox") {
+                result.push([tag, attr])
+            }  else {
+                result.push(["textarea", attr, attr.value || ""])
+            }
+
+            if(attr.hint) {
+                result.push(["div", {"class": "hint"}, "*", attr.hint])
+            }
+
+            return result;
+
+        } else if(tag === "choice") {
+            var result = ["div", /* {"data-role": "fieldcontain"} */];
+            attr.id = "MUI_FORM_" + attr.name;
+
+            var select = childTransform(["select", attr, ["option", {value: ""}, attr.label]], elem);
+            for(var i=2;i<select.length;++i) {
+                if(attr.value === select[i][1].value) {
+                    attr.selectedIndex = i-2;
+                }
+            }
+            result.push(select);
+            return result;
+        }
+        return childTransform([tag, attr], elem);
+    }
+
+
 
     function fixup() {
         var $page = $("#next page");
@@ -179,19 +256,38 @@ var mui = (function(exports, $, global) {
     }
 
     exports.showPage = function(elem) {
-        previousPage = elem;
-        $(document).unbind('scroll');
-        $("#current").before($("<div>").attr("id", "next"));
-        elem = jsonml.toDOM(elem);
-        $("#next").append(elem);
-        fixup();
-        notLoading();
-        $("#current").css("top", -$("#next").height()).attr("id", "prev");
-        $("#next").attr("id", "current");
-        if ($("#current #morecontainer")) {
-            mui.more(morefn);
+        if($.mobile) {
+            previousPage = elem;
+            //$(document).unbind('scroll');
+            elem = jsonml.withAttr(elem);
+            elem = transform(elem);
+            elem = jsonml.toDOM(elem);
+    
+            $("#current").attr("id", "prev");
+            setTimeout(function() {$("#prev").remove()}, 500);
+    
+            $current = $(elem);
+            $("body").append($current);
+            $.mobile.changePage($current);
+    
+            //if ($("#current #morecontainer")) {
+            //    mui.more(morefn);
+            //}
+        } else {
+            previousPage = elem;
+            $(document).unbind('scroll');
+            $("#current").before($("<div>").attr("id", "next"));
+            elem = jsonml.toDOM(elem);
+            $("#next").append(elem);
+            fixup();
+            notLoading();
+            $("#current").css("top", -$("#next").height()).attr("id", "prev");
+            $("#next").attr("id", "current");
+            if ($("#current #morecontainer")) {
+                mui.more(morefn);
+            }
+            setTimeout('$("#prev").remove()', 500);
         }
-        setTimeout('$("#prev").remove()', 500);
     }
 
     function updateLayout() {
@@ -224,7 +320,5 @@ var mui = (function(exports, $, global) {
         updateLayout();
     }
 
-	
     return mui;
-
 })({}, $, this /*global*/);
