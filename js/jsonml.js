@@ -1,3 +1,4 @@
+
 // # JsonML
   
 // Various functions for handling
@@ -11,7 +12,40 @@
 // avoid regular expressions to be possible to 
 // run on javascript-subsets on j2me devices.
 var jsonml = (function(exports){
+/*global document */
+/*jshint evil:true */
+"use strict";
 var global = this;
+
+// ## Utility
+
+// Error handler
+function jsonmlError(desc) {
+    throw desc;
+}
+
+function plainObject(obj) {
+    return typeof obj === "object" && obj !== null && obj.constructor === Object;
+}
+
+// XML escaped entity table
+var entities = {
+    "quot": '"',
+    "amp": '&',
+    "apos": "'",
+    "lt": '<',
+    "gt": '>'
+};
+
+// Generate a reverse xml entity table.
+var reventities = (function () {
+    var result = {};
+    var key;
+    for(key in entities) { if(entities.hasOwnProperty(key)) {
+        result[entities[key]] = key;
+    } }
+    return result;
+})();
 
 // ## XML parser
 
@@ -24,7 +58,7 @@ var global = this;
 // non-well-formed documents, <?... > <!... > are not really handled, ...
 function fromXml(xml) {
     if(typeof(xml) !== "string") {
-        JsonML_Error( 
+        jsonmlError( 
             "Error: jsonml.parseXML didn't receive a string as parameter");
     }
 
@@ -67,7 +101,7 @@ function fromXml(xml) {
                 } else {
                     c = entities[entity];
                     if(!c) {
-                        JsonML_Error("error: unrecognisable xml entity: " + entity);
+                        jsonmlError("error: unrecognisable xml entity: " + entity);
                     }
                 }
             } 
@@ -113,7 +147,7 @@ function fromXml(xml) {
                         attributes[attr] = read_until(value_terminator);
                         if(is_a('"\'')) { next_char(); }
                     } else {
-                        JsonML_Error("something not attribute in tag");
+                        jsonmlError("something not attribute in tag");
                     }
                     while(c && is_a(whitespace)) { next_char(); }
                 }
@@ -123,7 +157,7 @@ function fromXml(xml) {
                 if(is_a("/")) {
                     next_char();
                     if(!is_a(">")) { 
-                        JsonML_Error('expected ">" after "/" within tag'); 
+                        jsonmlError('expected ">" after "/" within tag'); 
                     }
                     tag.push(newtag);
                 } else {
@@ -136,7 +170,7 @@ function fromXml(xml) {
             } else {
                 next_char();
                 if(read_until(">") !== tag[0]) {
-                    JsonML_Error("end tag not matching: " + tag[0]);
+                    jsonmlError("end tag not matching: " + tag[0]);
                 }
                 next_char();
                 var parent_tag = stack.pop();
@@ -154,7 +188,7 @@ function fromXml(xml) {
         }
     }
     return tag;
-};
+}
 
 // The exported xml parser
 exports.fromXml = function(xml) {
@@ -166,17 +200,26 @@ exports.fromXml = function(xml) {
             return parsed[i];
         }
     }
-}
+};
 
 
 // ## XML generation
 
-// Convert jsonml in array form to xml.
-exports.toXml = function(jsonml) {
-    var acc = [];
-    toXmlAcc(jsonml, acc);
-    return acc.join('');
-};
+// Append the characters of `str`, or the xml-entity they map to, to the `acc`umulator array.
+function xmlEscape(str, acc) {
+    for(var i = 0; i < str.length; ++i) {
+        var c = str[i];
+        var code = c.charCodeAt(0);
+        var s = reventities[c];
+        if(s) {
+            acc.push("&" + s + ";");
+        } else if(/*code < 32 ||*/ code >= 128) {
+            acc.push("&#" + code + ";");
+        } else {
+            acc.push(c);
+        }
+    }
+}
 
 // The actual implementation. As the XML-string is built by appending to the 
 // `acc`umulator.
@@ -214,41 +257,12 @@ function toXmlAcc(jsonml, acc) {
     }
 }
 
-// XML escaped entity table
-var entities = {
-    "quot": '"',
-    "amp": '&',
-    "apos": "'",
-    "lt": '<',
-    "gt": '>'
+// Convert jsonml in array form to xml.
+exports.toXml = function(jsonml) {
+    var acc = [];
+    toXmlAcc(jsonml, acc);
+    return acc.join('');
 };
-
-// Generate a reverse xml entity table.
-var reventities = (function () {
-    var result = {};
-    var key;
-    for(key in entities) { if(entities.hasOwnProperty(key)) {
-        result[entities[key]] = key;
-    } }
-    return result;
-})();
-
-
-// Append the characters of `str`, or the xml-entity they map to, to the `acc`umulator array.
-function xmlEscape(str, acc) {
-    for(var i = 0; i < str.length; ++i) {
-        var c = str[i];
-        var code = c.charCodeAt(0);
-        var s = reventities[c];
-        if(s) {
-            acc.push("&" + s + ";");
-        } else if(/*code < 32 ||*/ code >= 128) {
-            acc.push("&#" + code + ";");
-        } else {
-            acc.push(c);
-        }
-    }
-}
 
 // ## Utility functions
 
@@ -271,13 +285,22 @@ exports.getAttr = function(jsonml, attribute) {
         return jsonml[1][attribute];
     }
 };
-// Convert jsonml into an easier subscriptable json structure, not preserving 
-// the order of the elements
-exports.toObject = function(jsonml) {
-    var result = {};
-    result[jsonml[0]] = toObjectInner(jsonml);
-    return result; 
-};
+
+
+// Add a property to the object. If the property is already there, append 
+// the `val`ue to an array at the key instead, possibly putting existing 
+// object in front of such array, if that is not an array yet.
+function addprop(obj, key, val) {
+    if(obj[key]) {
+        if(Array.isArray(obj[key])) {
+            obj[key].push(val);
+        } else {
+            obj[key] = [obj[key], val];
+        }
+    } else {
+        obj[key] = val;
+    }
+}
 
 // Internal function called by toObject. Return an object corresponding to 
 // the child nodes of the `jsonml`-parameter
@@ -309,24 +332,14 @@ function toObjectInner(jsonml) {
     return result;
 }
 
-// Add a property to the object. If the property is already there, append 
-// the `val`ue to an array at the key instead, possibly putting existing 
-// object in front of such array, if that is not an array yet.
-function addprop(obj, key, val) {
-    if(obj[key]) {
-        if(Array.isArray(obj[key])) {
-            obj[key].push(val);
-        } else {
-            obj[key] = [obj[key], val];
-        }
-    } else {
-        obj[key] = val;
-    }
-}
-// Error handler
-function JsonML_Error(desc) {
-    throw desc;
-}
+// Convert jsonml into an easier subscriptable json structure, not preserving 
+// the order of the elements
+exports.toObject = function(jsonml) {
+    var result = {};
+    result[jsonml[0]] = toObjectInner(jsonml);
+    return result; 
+};
+
 
 function visit(jsonml, fn) {
     jsonml.forEach(function(elem) { if(Array.isArray(elem)) visit(elem, fn); });
@@ -340,22 +353,19 @@ function insertEmptyAttributes(jsonml) {
     }
 }
 
-function plainObject(obj) {
-    return typeof obj === "object" && obj !== null && obj.constructor === Object;
-}
-
 exports.withAttr = function(obj) {
     visit(obj, insertEmptyAttributes);
     return obj;
-}
+};
 
 exports.toDOM = function toDOM(jsonml) {
+    var elem;
     if(Array.isArray(jsonml)) {
         insertEmptyAttributes(jsonml);
-        var elem = document.createElement(jsonml[0]);
+        elem = document.createElement(jsonml[0]);
         var attr = jsonml[1];
         for(var i=2;i<jsonml.length;++i) {
-            elem.appendChild(toDOM(jsonml[i]))
+            elem.appendChild(toDOM(jsonml[i]));
         }
         for(var name in attr) {
             if(attr[name] !== undefined && attr[name] !== null) {
@@ -370,18 +380,18 @@ exports.toDOM = function toDOM(jsonml) {
                 elem.setAttribute(name, attr[name]);
     
                 if(global.$ && name.slice(0,2) === "on") {
-                    fn = (typeof attr[name] === "string" )
-                        ? Function(attr[name])
-                        : attr[name];
+                    var fn = (typeof attr[name] === "string" ) ? 
+                            new Function(attr[name]) : 
+                            attr[name];
                     global.$(elem).bind(name.slice(2), fn);
                 }
             }
         }
     } else if(typeof jsonml === "string") {
-        var elem = document.createTextNode(jsonml);
+        elem = document.createTextNode(jsonml);
     }
     return elem;
-}
+};
 
 return exports;
 })({});

@@ -1,4 +1,6 @@
-var mui = (function(exports, $, global) {
+var mui = (function(exports, global) {
+    /*global $, jsonml, document, localStorage, setTimeout, window */
+    "use strict";
     var mui = exports;
 
     exports.setHints = function setHints(page, hints) {
@@ -20,9 +22,9 @@ var mui = (function(exports, $, global) {
             }
         }
         return page;
-    }
+    };
 
-    var morefn = undefined;
+    var morefn;
 
     mui.session = {};
 
@@ -61,24 +63,24 @@ var mui = (function(exports, $, global) {
             result.push(escapeUri(name) + "=" + escapeUri("" + args[name]));
         }
         return result.join("&");
-    }
+    };
 
 
     exports.callJsonpWebservice = function(url, callbackParameterName, args, callback) {
         url = url + "?" + encodeUrlParameters(args) + "&" + callbackParameterName + "=?";
         $.ajax(url, { dataType: "jsonp", success: callback, error: function() { callback(); } });
-    }
+    };
 
     exports.storage = {};
 
-    var previousPage = undefined;
+    var previousPage;
 
     exports.prevPage = function() {
         return previousPage;
     };
 
+    var main = function(mui) { exports.setMain = function(fn) { fn(mui); };};
     exports.setMain = function(fn) { main = fn; };
-    var main = function(mui) { exports.setMain = function(fn) { fn(mui); }};
     var startme = false;
     $(document).ready(function() {
         if(typeof localStorage !== "undefined") {
@@ -92,7 +94,7 @@ var mui = (function(exports, $, global) {
                 getItem: function(key) {
                     return store[key];
                 }
-            }
+            };
         }
         main(exports);
      });
@@ -113,6 +115,7 @@ var mui = (function(exports, $, global) {
         }
     }
 
+    var transform;
     function childTransform(dst, src) {
         for(var i=2;i<src.length;++i) {
             dst.push(transform(src[i]));
@@ -120,17 +123,18 @@ var mui = (function(exports, $, global) {
         return dst;
     }
 
-    function transform(elem) {
+    transform = function transform(elem) {
         if(!Array.isArray(elem)) {
             return elem;
         }
 
+        var result;
         var tag = elem[0];
         var attr = elem[1];
 
         if(tag === "page") {
             return ["div", {"data-role": "page", id: "current"},
-                ["div", {"data-role": "header"}, ["h1", attr.title || untitled]],
+                ["div", {"data-role": "header"}, ["h1", attr.title || "untitled"]],
                 childTransform(["div", {"data-role": "content"}], elem)];
 
         } else if(tag === "section") {
@@ -138,14 +142,14 @@ var mui = (function(exports, $, global) {
             if(attr.autocontent) {
                $("#morecontainer").attr("id", "");
                attr.id = "morecontainer";
-               morefn = autocontent("autocontent");
+               morefn = attr.autocontent;
             }
 
         } else if(tag === "button" && attr.fn) {
-            attr = {"onclick": (function(fn) { return function() { fn(mui) } })(attr.fn)};
+            attr = {"onclick": (function(fn) { return function() { fn(mui); }; })(attr.fn)};
 
         } else if(tag === "input") {
-            var result = ["div", /* {"data-role": "fieldcontain"} */]
+            result = ["div" /*,  {"data-role": "fieldcontain"} */ ];
             attr.id = "MUI_FORM_" + attr.name;
             /* if(attr.label) {
                 result.push(["label", {"for": attr.id}, attr.label, ":"]);
@@ -153,20 +157,24 @@ var mui = (function(exports, $, global) {
             attr.placeholder = attr.label;
 
             if(attr.type !== "textbox") {
-                result.push([tag, attr])
+                result.push([tag, attr]);
             }  else {
-                result.push(["textarea", attr, attr.value || ""])
+                result.push(["textarea", attr, attr.value || ""]);
             }
 
             if(attr.hint) {
-                result.push(["div", {"class": "hint"}, "*", attr.hint])
+                result.push(["div", {"class": "hint"}, "*", attr.hint]);
             }
 
             return result;
 
         } else if(tag === "choice") {
-            var result = ["div", /* {"data-role": "fieldcontain"} */];
+            result = ["div" /*, {"data-role": "fieldcontain"} */];
             attr.id = "MUI_FORM_" + attr.name;
+
+            /* if(attr.label) {
+                result.push(["label", {"for": attr.id}, attr.label, ":"]);
+            } */
 
             var select = childTransform(["select", attr, ["option", {value: ""}, attr.label]], elem);
             for(var i=2;i<select.length;++i) {
@@ -178,7 +186,7 @@ var mui = (function(exports, $, global) {
             return result;
         }
         return childTransform([tag, attr], elem);
-    }
+    };
 
 
 
@@ -206,7 +214,7 @@ var mui = (function(exports, $, global) {
                     $("<div>").addClass("button").append(
                         $("<a>").append($(this).contents()))
                         .one("click", (function(fn) {
-                            return function() { fn(mui); }})(this.fn))
+                            return function() { fn(mui);};})(this.fn))
                 );
             }
         });
@@ -244,9 +252,9 @@ var mui = (function(exports, $, global) {
         });
 
         $("#next choice").replaceWith(function() {
-            $this = $(this);
+            var $this = $(this);
             var name = $this.prop("name");
-            $result = $("<select>").attr("name", name)
+            var $result = $("<select>").attr("name", name)
                         .append('<option value="">' + $this.prop("label") + "</option>")
                         .append($this.contents()).val($this.prop("value"));
             $result.attr("id", "MUI_FORM_" + name);
@@ -264,9 +272,9 @@ var mui = (function(exports, $, global) {
             elem = jsonml.toDOM(elem);
     
             $("#current").attr("id", "prev");
-            setTimeout(function() {$("#prev").remove()}, 500);
+            setTimeout(function() {$("#prev").remove();}, 500);
     
-            $current = $(elem);
+            var $current = $(elem);
             $("body").append($current);
             $.mobile.changePage($current);
     
@@ -286,17 +294,20 @@ var mui = (function(exports, $, global) {
             if ($("#current #morecontainer")) {
                 mui.more(morefn);
             }
-            setTimeout('$("#prev").remove()', 500);
+            setTimeout(function() {$("#prev").remove();}, 500);
         }
-    }
+    };
 
     function updateLayout() {
-        $("#prev") && $("#prev").css("top", -$("#current").height())
+        if($("#prev")) {
+            $("#prev").css("top", -$("#current").height());
+        }
     }
 
     exports.more = function more(fn) {
         $("#morecontainer").append('<div id="more"><a>more...</a></div>');
 
+        var onScreen;
         function update() {
             $(document).unbind("scroll", onScreen);
             $("#more").html("loading...");
@@ -304,21 +315,23 @@ var mui = (function(exports, $, global) {
             fn(mui);
         }
 
-        function onScreen() {
+        onScreen = function onScreen() {
             if ($("#more").offset() && $("#more").offset().top < window.innerHeight + window.pageYOffset) {
                 update();
             }
-        }
+        };
         $(document).bind("scroll", onScreen);
         $("#more").bind("click", update);
         onScreen();
-    }
+    };
 
     exports.append = function(elem) {
-        $("#more") && $("#more").remove();
+        if($("#more")) {
+            $("#more").remove();
+        }
         $("#morecontainer").append($("<div>").append(elem));
         updateLayout();
-    }
+    };
 
     return mui;
-})({}, $, this /*global*/);
+})({}, this /*global*/);
