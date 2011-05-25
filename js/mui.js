@@ -96,6 +96,9 @@ var mui = (function(exports, global) {
                 }
             };
         }
+        if(!$.mobile) {
+            $("body").append('<div id="container"><div id="current"></div><div class="contentend"></div></div><div id="loading">Loading...</div>');
+        }
         main(exports);
      });
 
@@ -149,12 +152,12 @@ var mui = (function(exports, global) {
             attr = {"onclick": (function(fn) { return function() { fn(mui); }; })(attr.fn)};
 
         } else if(tag === "input") {
-            result = ["div" /*,  {"data-role": "fieldcontain"} */ ];
+            result = ["div",  {"data-role": "fieldcontain"} ];
             attr.id = "MUI_FORM_" + attr.name;
-            /* if(attr.label) {
-                result.push(["label", {"for": attr.id}, attr.label, ":"]);
-            } */
-            attr.placeholder = attr.label;
+            if(attr.label) {
+                result.push(["label", {"for": attr.id}, attr.label]);
+            } 
+            //attr.placeholder = attr.label;
 
             if(attr.type !== "textbox") {
                 result.push([tag, attr]);
@@ -169,14 +172,15 @@ var mui = (function(exports, global) {
             return result;
 
         } else if(tag === "choice") {
-            result = ["div" /*, {"data-role": "fieldcontain"} */];
+            result = ["div", {"data-role": "fieldcontain"}];
             attr.id = "MUI_FORM_" + attr.name;
 
-            /* if(attr.label) {
-                result.push(["label", {"for": attr.id}, attr.label, ":"]);
-            } */
+            if(attr.label) {
+                result.push(["label", {"for": attr.id}, attr.label]);
+            } 
 
-            var select = childTransform(["select", attr, ["option", {value: ""}, attr.label]], elem);
+            //var select = childTransform(["select", attr, ["option", {value: ""}, attr.label]], elem);
+            var select = childTransform(["select", attr], elem);
             for(var i=2;i<select.length;++i) {
                 if(attr.value === select[i][1].value) {
                     attr.selectedIndex = i-2;
@@ -266,11 +270,13 @@ var mui = (function(exports, global) {
     exports.showPage = function(elem) {
         if($.mobile) {
             previousPage = elem;
-            //$(document).unbind('scroll');
+            $(document).unbind('scroll');
             elem = jsonml.withAttr(elem);
             elem = transform(elem);
             elem = jsonml.toDOM(elem);
     
+            $("#morecontainer").attr("id", "");
+            $("#more").attr("id", "");
             $("#current").attr("id", "prev");
             setTimeout(function() {$("#prev").remove();}, 500);
     
@@ -278,9 +284,9 @@ var mui = (function(exports, global) {
             $("body").append($current);
             $.mobile.changePage($current);
     
-            //if ($("#current #morecontainer")) {
-            //    mui.more(morefn);
-            //}
+            if ($("#morecontainer")) {
+                mui.more(morefn);
+            }
         } else {
             previousPage = elem;
             $(document).unbind('scroll');
