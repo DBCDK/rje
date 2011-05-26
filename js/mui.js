@@ -1,4 +1,4 @@
-var mui = (function(exports, global) {
+window.mui = (function(exports, global) {
     /*global $, jsonml, document, localStorage, setTimeout, window */
     "use strict";
     var mui = exports;
@@ -126,6 +126,15 @@ var mui = (function(exports, global) {
         return dst;
     }
 
+    function classExtend(attr, className) {
+        if(attr["class"]) {
+            attr["class"] += " " + className;
+        } else {
+            attr["class"] = className;
+        }
+        return attr;
+    }
+
     transform = function transform(elem) {
         if(!Array.isArray(elem)) {
             return elem;
@@ -133,15 +142,16 @@ var mui = (function(exports, global) {
 
         var result;
         var tag = elem[0];
-        var attr = elem[1];
+        var attr = jQuery.extend({}, elem[1]);
 
         if(tag === "page") {
             return ["div", {"data-role": "page", id: "current"},
-                ["div", {"data-role": "header"}, ["h1", attr.title || "untitled"]],
-                childTransform(["div", {"data-role": "content"}], elem)];
+                ["div", {"data-role": "header", "class": "header"}, ["h1", attr.title || "untitled"]],
+                childTransform(["div", {"data-role": "content"}], elem), ["div", {"class": "contentend"}]];
 
         } else if(tag === "section") {
             tag = "div";
+            classExtend(attr, "contentbox");
             if(attr.autocontent) {
                $("#morecontainer").attr("id", "");
                attr.id = "morecontainer";
@@ -150,14 +160,22 @@ var mui = (function(exports, global) {
 
         } else if(tag === "button" && attr.fn) {
             attr = {"onclick": (function(fn) { return function() { fn(mui); }; })(attr.fn)};
+            if(!$.mobile) {
+                classExtend(attr, "button");
+                tag = "div";
+            }
 
         } else if(tag === "input") {
-            result = ["div",  {"data-role": "fieldcontain"} ];
+            result = ["div",  {"data-role": "fieldcontain", "class": "input"} ];
             attr.id = "MUI_FORM_" + attr.name;
-            if(attr.label) {
-                result.push(["label", {"for": attr.id}, attr.label]);
-            } 
-            //attr.placeholder = attr.label;
+
+            if($.mobile) {
+                if(attr.label) {
+                    result.push(["label", {"for": attr.id}, attr.label]);
+                } 
+            } else {
+                attr.placeholder = attr.label;
+            }
 
             if(attr.type !== "textbox") {
                 result.push([tag, attr]);
@@ -175,12 +193,15 @@ var mui = (function(exports, global) {
             result = ["div", {"data-role": "fieldcontain"}];
             attr.id = "MUI_FORM_" + attr.name;
 
-            if(attr.label) {
-                result.push(["label", {"for": attr.id}, attr.label]);
-            } 
+            if($.mobile) {
+                if(attr.label) {
+                    result.push(["label", {"for": attr.id}, attr.label]);
+                } 
+                var select = childTransform(["select", attr], elem);
+            }  else {
+                var select = childTransform(["select", attr, ["option", {value: ""}, attr.label]], elem);
+            }
 
-            //var select = childTransform(["select", attr, ["option", {value: ""}, attr.label]], elem);
-            var select = childTransform(["select", attr], elem);
             for(var i=2;i<select.length;++i) {
                 if(attr.value === select[i][1].value) {
                     attr.selectedIndex = i-2;
@@ -192,116 +213,31 @@ var mui = (function(exports, global) {
         return childTransform([tag, attr], elem);
     };
 
-
-
-    function fixup() {
-        var $page = $("#next page");
-        var title = $page.attr("title");
-        if(title) {
-            $page.prepend($("<div>").addClass("header").text(title));
-        }
-        $page.append($("<div>").addClass("contentend"));
-        $page.replaceWith($page.contents());
-
-        $("#next section").replaceWith(function() {
-            var $result = $("<div>").addClass("contentbox").append($(this).contents());
-            if($(this).prop("autocontent")) {
-               $result.attr("id", "morecontainer");
-               morefn = $(this).prop("autocontent");
-            }
-            return $result;
-        });
-
-        $("#next button").each(function() {
-            if(this.fn) {
-                $(this).replaceWith(
-                    $("<div>").addClass("button").append(
-                        $("<a>").append($(this).contents()))
-                        .one("click", (function(fn) {
-                            return function() { fn(mui);};})(this.fn))
-                );
-            }
-        });
-
-        $("#next input").each(function() {
-            var $this = $(this);
-
-            var $t = $('<div class="input">');
-            $this.replaceWith($t);
-            $t.append($this);
-
-            var name = this.name;
-            var type = this.type;
-            var label = this.label;
-            var hint = this.hint;
-
-            if(type === "textbox") {
-                var $new = $("<textarea>");
-                $new.attr("name", name)
-                    .val($this.val());
-                $this.replaceWith($new);
-                $this = $new;
-            } 
-
-            if(hint) {
-                $this.after($('<div class="hint">').text("* " + hint));
-            }
-
-            $this.attr("id", "MUI_FORM_" + name);
-
-            // TODO: modernizr placeholder degradation
-            $this.attr("placeholder", label);
-
-            //$this.replaceWith($('<div class="input">').append($this));
-        });
-
-        $("#next choice").replaceWith(function() {
-            var $this = $(this);
-            var name = $this.prop("name");
-            var $result = $("<select>").attr("name", name)
-                        .append('<option value="">' + $this.prop("label") + "</option>")
-                        .append($this.contents()).val($this.prop("value"));
-            $result.attr("id", "MUI_FORM_" + name);
-
-            return $('<div class="input">').append($result);
-        });
-    }
-
     exports.showPage = function(elem) {
+        previousPage = elem;
+        $(document).unbind('scroll');
+        $("#morecontainer").attr("id", "");
+        $("#more").attr("id", "");
+        $("#current").attr("id", "prev");
+        elem = jsonml.withAttr(elem);
+        elem = transform(elem);
+        elem = jsonml.toDOM(elem);
+        notLoading();
+    
         if($.mobile) {
-            previousPage = elem;
-            $(document).unbind('scroll');
-            elem = jsonml.withAttr(elem);
-            elem = transform(elem);
-            elem = jsonml.toDOM(elem);
+            $("body").append($(elem));
+            $.mobile.changePage($(elem));
     
-            $("#morecontainer").attr("id", "");
-            $("#more").attr("id", "");
-            $("#current").attr("id", "prev");
-            setTimeout(function() {$("#prev").remove();}, 500);
-    
-            var $current = $(elem);
-            $("body").append($current);
-            $.mobile.changePage($current);
-    
-            if ($("#morecontainer")) {
-                mui.more(morefn);
-            }
         } else {
-            previousPage = elem;
-            $(document).unbind('scroll');
-            $("#current").before($("<div>").attr("id", "next"));
-            elem = jsonml.toDOM(elem);
-            $("#next").append(elem);
-            fixup();
-            notLoading();
-            $("#current").css("top", -$("#next").height()).attr("id", "prev");
+            $("#prev").before($(elem).attr("id", "next"));
+            $("#prev").css("top", -$("#next").height());
             $("#next").attr("id", "current");
-            if ($("#current #morecontainer")) {
-                mui.more(morefn);
-            }
-            setTimeout(function() {$("#prev").remove();}, 500);
         }
+
+        if ($("#morecontainer")) {
+            mui.more(morefn);
+        }
+        setTimeout(function() {$("#prev").remove();}, 500);
     };
 
     function updateLayout() {

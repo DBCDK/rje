@@ -1,7 +1,0 @@
-This code is a fork of regexp-me,
-http://code.google.com/p/regexp-me/
-which is based on Jakarta Regexp
-
-Changes:
-RERange is separate rather than a nested class of RECompiler, as nested classes fails in the verifyer for some phones.
-

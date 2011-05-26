@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-MIDlet-1: Midlet, ,Midlet
-MIDlet-Vendor: solsort.dk
-MIDlet-Name: Guitest
-MIDlet-Version: 1.0
-MicroEdition-Configuration: CLDC-1.0
-MicroEdition-Profile: MIDP-1.0
-

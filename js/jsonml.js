@@ -11,7 +11,7 @@
 // Not depending on any libraries, and also
 // avoid regular expressions to be possible to 
 // run on javascript-subsets on j2me devices.
-var jsonml = (function(exports){
+window.jsonml = (function(exports){
 /*global document */
 /*jshint evil:true */
 "use strict";
@@ -25,7 +25,7 @@ function jsonmlError(desc) {
 }
 
 function plainObject(obj) {
-    return typeof obj === "object" && obj !== null && obj.constructor === Object;
+    return typeof obj === "object" && obj !== null && !Array.isArray(obj);
 }
 
 // XML escaped entity table
