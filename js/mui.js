@@ -79,8 +79,11 @@ window.mui = (function(exports, global) {
         return previousPage;
     };
 
-    var main = function(mui) { exports.setMain = function(fn) { fn(mui); };};
-    exports.setMain = function(fn) { main = fn; };
+    exports.main = function(mui) { exports.setMain = function(fn) { 
+        exports.main = fn;
+        fn(mui); 
+    };};
+    exports.setMain = function(fn) { exports.main = fn; };
     var startme = false;
     $(document).ready(function() {
         if(typeof localStorage !== "undefined") {
@@ -99,7 +102,7 @@ window.mui = (function(exports, global) {
         if(!$.mobile) {
             $("body").append('<div id="container"><div id="current"></div><div class="contentend"></div></div><div id="loading">Loading...</div>');
         }
-        main(exports);
+        exports.main(exports);
      });
 
     exports.loading = function() {
@@ -159,6 +162,11 @@ window.mui = (function(exports, global) {
             }
 
         } else if(tag === "button" && attr.fn) {
+            if(window.ssjs) {
+                var text = elem.slice(2).join("");
+                window.ssjs.buttonName(text, attr.fn);
+                return ["input", {"type": "submit", "name": "_B", "value": text}];
+            }
             attr = {"onclick": (function(fn) { return function() { fn(mui); }; })(attr.fn)};
             if(!$.mobile) {
                 classExtend(attr, "button");
@@ -224,7 +232,10 @@ window.mui = (function(exports, global) {
         elem = jsonml.toDOM(elem);
         notLoading();
     
-        if($.mobile) {
+        if(window.ssjs) {
+            $("body").html($(elem));
+
+        } else if($.mobile) {
             $("body").append($(elem));
             $.mobile.changePage($(elem));
     
@@ -237,7 +248,12 @@ window.mui = (function(exports, global) {
         if ($("#morecontainer")) {
             mui.more(morefn);
         }
-        setTimeout(function() {$("#prev").remove();}, 500);
+
+        if(window.ssjs) {
+            window.ssjs.send();
+        } else {
+            setTimeout(function() {$("#prev").remove();}, 500);
+        }
     };
 
     function updateLayout() {
