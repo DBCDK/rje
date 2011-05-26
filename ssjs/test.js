@@ -13,7 +13,6 @@ require('jsdom').jsdom.env(
   console.log("time:", (new Date()).getTime() - start);
   console.log(window.$('body').html());
 
-for(var i=0;i<2000;++i) {
   start = (new Date()).getTime();
   window.mui.showPage(["page", {title: "Sp\xf8rg biblioteket"},
       ["section",
@@ -34,7 +33,6 @@ for(var i=0;i<2000;++i) {
         ["button", {fn: function() { }}, "Sp\xf8rg"],
         ["button", {fn: function() { }}, "Indstillinger"] ]);
   console.log("time:", (new Date()).getTime() - start);
-  }
   console.log(window.$('body').html());
 
   setTimeout( function() {console.log(window.$('body').html());}, 1000);
