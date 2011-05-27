@@ -7,6 +7,7 @@ app.configure(function(){
     //app.use(express.methodOverride());
     app.use(express.bodyParser());
     app.use(express.cookieParser());
+    app.use("/mui", express.static(__dirname + '/mui'));
     //app.use(app.router);
 });
 
@@ -77,18 +78,22 @@ function handleRequest(req, res, window, mui) {
         },
         send: function() {
             res.header("Content-Type", "text/html;charset=UTF-8");
-            res.end('<!doctype html><html class="no-js" manifest="mui.appcache">'
+            res.end('<!doctype html><html>'
                 + '<head>'
+                + '<title>' + window.$("h1").text() + '</title>'
                 + '<link rel="stylesheet" href="mui/mui.css">'
-                + '<link rel="shortcut icon" href="icon.png">'
+                + '<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">'
                 + '<meta name="MobileOptimized" content="320"/>'
                 + '<meta name="HandheldFriendly" content="True">'
+                + '<meta name="viewport" content="width=320, initial-scale=1.0">'
+/*
+                + '<link rel="shortcut icon" href="icon.png">'
                 + '<link rel="apple-touch-startup-image" href="splash.png">'
                 + '<meta name="apple-mobile-web-app-capable" content="yes">'
                 + '<link rel="apple-touch-icon-precomposed" href="icon.png">'
-                + '<meta name="viewport" content="width=320, initial-scale=1.0">'
                 + '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">'
                 + '<meta name="apple-mobile-web-app-status-bar-style" content="black">'
+                */
                 + '</head><body><form method="POST" action="/">'
                 + window.$("body").html()
                 + '</form></body></html>'

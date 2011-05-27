@@ -165,7 +165,7 @@ window.mui = (function(exports, global) {
             if(window.ssjs) {
                 var text = elem.slice(2).join("");
                 window.ssjs.buttonName(text, attr.fn);
-                return ["input", {"type": "submit", "name": "_B", "value": text}];
+                return ["input", {"type": "submit", "name": "_B", "value": text, "class": "button"}];
             }
             attr = {"onclick": (function(fn) { return function() { fn(mui); }; })(attr.fn)};
             if(!$.mobile) {
@@ -177,12 +177,14 @@ window.mui = (function(exports, global) {
             result = ["div",  {"data-role": "fieldcontain", "class": "input"} ];
             attr.id = "MUI_FORM_" + attr.name;
 
-            if($.mobile) {
-                if(attr.label) {
+            if(attr.label) {
+                if($.mobile) {
                     result.push(["label", {"for": attr.id}, attr.label]);
-                } 
-            } else {
-                attr.placeholder = attr.label;
+                } else if(window.ssjs) {
+                    result.push(["label", {"for": attr.id}, attr.label, ": "]);
+                } else {
+                    attr.placeholder = attr.label;
+                }
             }
 
             if(attr.type !== "textbox") {
@@ -194,6 +196,7 @@ window.mui = (function(exports, global) {
             if(attr.hint) {
                 result.push(["div", {"class": "hint"}, "*", attr.hint]);
             }
+            delete attr.label;
 
             return result;
 
@@ -216,6 +219,9 @@ window.mui = (function(exports, global) {
                 }
             }
             result.push(select);
+
+            delete attr.label;
+
             return result;
         }
         return childTransform([tag, attr], elem);

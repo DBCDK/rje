@@ -20,14 +20,18 @@ textarea {
 select {
     border-radius: 10px;
     font-size: 15px;
-  -webkit-border-radius:10px;
+    -webkit-appearance: menulist-button;
+    /* height: 26px; */
+    padding: 5px 5px 5px 5px;
+    margin: 5px 0px 5px 0px;
+    -webkit-border-radius:10px;
 }
 
 input {
-    width: 80%;
+    width: 80%; 
     font-size: 15px;
     border-radius: 10px;
-  -webkit-border-radius:10px;
+    -webkit-border-radius:10px;
 }
 
 .hint {
@@ -110,6 +114,10 @@ input {
     font-weight: bold; 
     color: #526595; 
     */
+}
+input .button {
+    height: 20px;
+    background-color: #000;
 }
 
 .contentbox {

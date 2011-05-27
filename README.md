@@ -1,9 +1,5 @@
 # Mobile User Interface
 
-Mui is a cross-platform mobile user interface intended to run both as a HTML5 App (android/iphone/and other smartphones), a Java Micro Edition Midlet (most featurephones), and a WAP2 mobile site (mostly anything else).
-
-Applications are written in a subset of JavaScript in order to be able to run on all platforms.
-
 
 # Modules
 
@@ -12,7 +8,7 @@ Applications are written in a subset of JavaScript in order to be able to run on
 
 The program starts with the Mui Callback function passed to `setMain(...)`.  A minimal program could be defined like:
 
-    require('mui').setMain(main);
+    mui.setMain(main);
 
     function main(mui) {
         mui.showPage(["page", ["text", "Hello world"]]);
@@ -39,6 +35,7 @@ Mui Pages are user interface descriptions passed that are to `showPage`. They ar
 - `page` is the tag type of the root elements, with the following attributes:
     - `title` is shown on the top of the page, optional
 - `section` groups other elements
+    -  `autocontent` function used for autoexpanded content, such as search results, - only one of these per page, as they autoexpand and loads more content, and it thus may not be possible to scroll across them. The autocontent function gets an mui object which also has an `append` method for adding content, and a `more` method which can be used to designate a function to be called fo more content
 - `text` is displayed text
 - `input` enables the user to input a value. It has the following attributes:
     - `label` optional label shown with the input element
@@ -48,8 +45,7 @@ Mui Pages are user interface descriptions passed that are to `showPage`. They ar
         - `tel`ephone number
         - `email` address
     - `name` is used to reference the result in `mui.form`, mandatory
-    - TODO: `validateFn` a JavaScript function that will be called with the content of the input, and should return truthy if the input is valid
-    - TODO: `validateHint` will be shown when the user enters an invalid value in the input
+    - `hint` - hint text added at the input
 - `choice` a collection of options, between which the user must select. Only `option` nodes are allowed as child elements. It has the following attributes:
     - `label` optional label shown with the choice group
     - `name` is used to reference the result in `mui.form`, mandatory
@@ -57,30 +53,6 @@ Mui Pages are user interface descriptions passed that are to `showPage`. They ar
     - `value` the value this choice will return to the program in the `mui.form`.
 - `button` is a clickable button with the following attributes:
     - `fn` the Mui Callback function to invoke when the button is pressed.
-
-
-## Module loader `xmodule.js`
-
-The module system is designed, such that modules can be used unaltered
-in the browser, in LightScript, and also with the CommonJS module system.
-
-Modules are defined like this:
-
-    require("xmodule").def("$YOUR_MODULE_NAME", function() {
-        ... require("...") ...
-        ... exports.... = ...
-    });
-
-
-Loading `xmodule` adds the following objects to the global scope:
-
-- `require("$YOUR_MODULE_NAME")` used for loading a module
-- `exports` - before loading a module, this will be created as an empty object. Properties set on this object will be available when the module is `require`d.
-
-It also does work to ensures that we are running in a sane JavaScript environment, - it loads `es5-shim` and `JSON` if we are on an old browser/js-engine.
-
-When defining your module, `$YOUR_MODULE_NAME` should be the same as the name of the file containg the module.
-Also notice that if your module `require`s a module that is not loaded yet, `require` will throw an exception to stop execution of your module, load the required module, and then try to reinitialise your module by calling its function again, - thus exceptions from require should not be caught.
 
 ## JsonML support `jsonml.js`
 
@@ -96,43 +68,5 @@ This module implements the following functions:
 - `jsonml.childReduce(jsonml_array, callback_function(accumulator, child_element), initial_value)` applies the callback function to each child element of the jsonml array
 - `jsonml.getAttr(jsonml_array, attributename)` retrieves the value of a given attribute of the jsonml array or undefined if the attribute is not defined
 
-## Various utility functions `Q.js`
-
-The `Q` module contains various utility functions. *NOTICE: this API is not final and for internal use at the moment, do not rely on it for external components yet*.
-
-- `Q.features` an object, containing som info on the environment, ie.:
-    - `Q.features.nodejs` is truthy if we are in node
-    - `Q.features.browser` is truthy if we have a browser environment
-- `Q.executeRemote(url)` fetch the code at the url, and execute it
-- `Q.callJsonpWebservice(url, callbackParameterName, args, callback)` calls a web service, this is wrapped in mui, see that aboce
-- `Q.encodeUrlParameters(args)` encodes an object parameters to a url-get-string
-- `Q.escapeUri(str)` uri-escape that works (the one in the EcmaScript Standard has issues with non-latin1 characters)
-- `Q.unescapeUri(str)` uri-escape that works (the one in the EcmaScript Standard has issues with non-latin1 characters)
-- `Q.pick(array)` returns a random element from an array
-- `Q.randint(n)` returns a random non-negative integer less than n
-
-## External modules
-
-MUI also includes the following modules:
-
-- JavaScript utility functions
-    - [es5-shim.js](https://github.com/kriskowal/es5-shim/)
-    - [underscore.js](http://documentcloud.github.com/underscore/)
-    - [json2.js](https://github.com/douglascrockford/JSON-js)
-    - [phonegap.0.9.4.js](http://www.phonegap.com/)
-- Unit testing
-    - [Jasmine 1.0.2](http://pivotal.github.com/jasmine/)
-
-# Unit testing
-
-Unit tests can be run in the browser by opening `spec/testrunner.html`. If more test-files has been added `spec/testrunner.html` can be regenerated by `cd spec; python genhtml.py > testrunner.html`.  To run tests with node, install jasbin with npm, and run: `NODE_PATH=mui jasbin`
-
 # Documentation
 This overview document is `README.md`, and can be transformed into a printable document with `markdown2pdf README.md` if pandoc is installed. Implementation documentation can be generated with the command `docco */*.js`, given docco is installed.
-
-# Other
-
-The following programs and libraries is also used during development
-
-- [phonegap](http://www.phonegap.com/)
-- [docco](https://github.com/jashkenas/docco)
