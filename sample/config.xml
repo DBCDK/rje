@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="dk.dbc.mui.sample" version="1.0.0">
-<name short="Søg!">Søg-eksempel-app!</name>
+<name>Mui sample</name>
 
 <description> Sample app using mui - search app in the danish library base</description>
 
