@@ -4,16 +4,17 @@ var express = require('express');
 var app = express.createServer();
 
 app.configure(function(){
-    //app.use(express.methodOverride());
+    /*app.use(express.methodOverride());*/
     app.use(express.bodyParser());
     app.use(express.cookieParser());
     app.use("/mui", express.static(__dirname + '/mui'));
-    //app.use(app.router);
+    /*app.use(app.router);*/
 });
 
 
-require('jsdom').jsdom.env( '<div id="container"><div id="current"></div></div>',
-        [ 'mui/jquery16min.js', "mui/jsonml.js", "mui/mui.js", "../../sporgetjeneste/code/main.js" ], function(errors, window) {
+require('jsdom').jsdom.env('<div id="container"><div id="current"></div></div>',
+        [ 'mui/jquery16min.js', "mui/jsonml.js", "mui/mui.js", 
+            "../../sporgetjeneste/code/main.js" ], function(errors, window) {
 
     var mui = window.mui;
     window.mui = undefined;
@@ -55,7 +56,7 @@ function handleRequest(req, res, window, mui) {
         // TODO: fix mem leak, sessions are never deleted
         clients[sid] = muiObject;
 
-        // TODO actually back store to disk or database
+        // TODO: actually back store to disk or database
         muiObject.storage = (function() {
             var store = {};
             return {
@@ -69,7 +70,10 @@ function handleRequest(req, res, window, mui) {
 
     muiObject.button = params._B;
 
-    fn = muiObject.fns[/*unescapeUri(*/muiObject.button /*|| "")*/] || mui.main;
+    /*
+    fn = muiObject.fns[unescapeUri(muiObject.button || "")] || mui.main;
+    */
+    fn = muiObject.fns[muiObject.button] || mui.main;
     muiObject.fns = {};
     
     window.ssjs = {
@@ -82,17 +86,20 @@ function handleRequest(req, res, window, mui) {
                 + '<head>'
                 + '<title>' + window.$("h1").text() + '</title>'
                 + '<link rel="stylesheet" href="mui/mui.css">'
-                + '<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">'
+                + '<meta http-equiv="Content-Type"'
+                + ' content="text/html;charset=UTF-8">'
                 + '<meta name="MobileOptimized" content="320"/>'
                 + '<meta name="HandheldFriendly" content="True">'
-                + '<meta name="viewport" content="width=320, initial-scale=1.0">'
-/*
+                + '<meta name="viewport" content="width=320,initial-scale=1.0">'
+                /*
                 + '<link rel="shortcut icon" href="icon.png">'
                 + '<link rel="apple-touch-startup-image" href="splash.png">'
                 + '<meta name="apple-mobile-web-app-capable" content="yes">'
                 + '<link rel="apple-touch-icon-precomposed" href="icon.png">'
-                + '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">'
-                + '<meta name="apple-mobile-web-app-status-bar-style" content="black">'
+                + '<meta http-equiv="X-UA-Compatible"' 
+                + ' content="IE=edge,chrome=1">'
+                + '<meta name="apple-mobile-web-app-status-bar-style"' 
+                + ' content="black">'
                 */
                 + '</head><body><form method="POST" action="/">'
                 + window.$("body").html()
