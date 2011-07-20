@@ -1,8 +1,19 @@
+// # Mobile User Interface
+//
 window.mui = (function(exports, global) {
     /*global $, jsonml, document, localStorage, setTimeout, window */
     "use strict";
     var mui = exports;
+    var morefn;
 
+
+    // ----
+
+    // ## Insert hints on form
+    // Update hints on input elements on a page.
+    // This is usefull for example if a form is filled out
+    // wrongly, and the user should be notified, ie:
+    // `mui.showPage(mui.setHints(mui.prevPage(), {"username": "Please enter a user name"}));`
     exports.setHints = function setHints(page, hints) {
         if (Array.isArray(page)) {
             var attr = page[1];
@@ -24,18 +35,26 @@ window.mui = (function(exports, global) {
         return page;
     };
 
-    var morefn;
+    // ----
 
+    // mui.session is a place to store session variables
     mui.session = {};
+
+    // ## Get the value of a form element
+    // Notice: server-side execution of mui overwrites this function.
 
     exports.formValue = function(name) {
         return $("#MUI_FORM_" + name).val();
     };
 
+    // ## Jsonp requests
+    /**/ 
     // Valid characters in URIs
-    var urichars = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_~.";
+    var urichars = '1234567890abcdefghijklmnopqrstuvwxyz' 
+        + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ-_~.';
 
-    // An uri.
+    // Workaround for buggy uri-escape in EcmaScript.
+    // Escape an uri in a way that is compatible with web-clients/servers
     var escapeUri = exports.escapeUri = function(uri) {
         var result = [];
         for (var i = 0; i < uri.length; ++i) {
@@ -54,7 +73,8 @@ window.mui = (function(exports, global) {
         return result.join("");
     };
 
-    // when building an uri, this is a shorthand for making the
+    // Encoding of parameters after the ? in a GET-request.
+    // When building an uri, this is a shorthand for making the
     // get-request string
     var encodeUrlParameters = exports.encodeUrlParameters = function(args) {
         var result = [];
@@ -65,11 +85,16 @@ window.mui = (function(exports, global) {
         return result.join("&");
     };
 
-
-    exports.callJsonpWebservice = function(url, callbackParameterName, args, callback) {
-        url = url + "?" + encodeUrlParameters(args) + "&" + callbackParameterName + "=?";
-        $.ajax(url, { dataType: "jsonp", success: callback, error: function() { callback(); } });
+    // ### Function for calling a jsonp-api
+    exports.callJsonpWebservice = 
+            function(url, callbackParameterName, args, callback) {
+        url = url + "?" + encodeUrlParameters(args) + "&" 
+            + callbackParameterName + "=?";
+        $.ajax(url, { dataType: "jsonp", success: callback, 
+            error: function() { callback(); } });
     };
+
+    // ----
 
     exports.storage = {};
 
@@ -79,11 +104,22 @@ window.mui = (function(exports, global) {
         return previousPage;
     };
 
+    // ## Main function
+    // `exports.main` will be a user-supplied main function,
+    // that will be called when the document is ready.
+    // If the function hasn't been supplied before it is called,
+    // this wrapper function makes sure that it will be called,
+    // when it is supplied.
     exports.main = function(mui) { exports.setMain = function(fn) { 
         exports.main = fn;
         fn(mui); 
     };};
+
+    // Function for setting the main function, - should be called once
+    // by the user application.
     exports.setMain = function(fn) { exports.main = fn; };
+
+    // ----
 
     function start() {
         console.log("start");
@@ -101,14 +137,17 @@ window.mui = (function(exports, global) {
             };
         }
         if(!$.mobile) {
-            $("body").append('<div id="container"><div id="current"></div><div class="contentend"></div></div><div id="loading">Loading...</div>');
+            $("body").append('<div id="container"><div id="current"></div>' 
+                    + '<div class="contentend"></div></div>' 
+                    + '<div id="loading">Loading...</div>');
         }
         exports.main(exports);
     };
 
     if(window.PhoneGap && window.PhoneGap.device) {
         console.log("start A");
-        document.addEventListener("deviceready", function() { $(start); }, false);
+        document.addEventListener("deviceready", 
+                function() { $(start); }, false);
     } else {
         console.log("start B");
         $(start);
@@ -131,7 +170,16 @@ window.mui = (function(exports, global) {
         }
     }
 
+    // ----
+
+    // # Page transformation
+    /**/
+
+    // forward declaration of transform function, needed for jshint
     var transform;
+
+    // run the transform function on all the child nodes of `src` 
+    // and append the result to `dst`
     function childTransform(dst, src) {
         for(var i=2;i<src.length;++i) {
             dst.push(transform(src[i]));
@@ -139,6 +187,7 @@ window.mui = (function(exports, global) {
         return dst;
     }
 
+    // add a class to a html/jsonml node
     function classExtend(attr, className) {
         if(attr["class"]) {
             attr["class"] += " " + className;
@@ -148,6 +197,11 @@ window.mui = (function(exports, global) {
         return attr;
     }
 
+    // The actual transformation code. 
+    // Takes a jsonml tree as parameter, and returns a new one.
+    // It assumes that the jsonml is normalised,
+    // ie. contains a (possibly empty) attribute object
+    // at elem[1]. 
     transform = function transform(elem) {
         if(!Array.isArray(elem)) {
             return elem;
@@ -155,12 +209,15 @@ window.mui = (function(exports, global) {
 
         var result;
         var tag = elem[0];
+        // copy the attr, to make sure we do not modify the attributes in place
         var attr = jQuery.extend({}, elem[1]);
 
         if(tag === "page") {
             return ["div", {"data-role": "page", id: "current"},
-                ["div", {"data-role": "header", "class": "header"}, ["h1", attr.title || "untitled"]],
-                childTransform(["div", {"data-role": "content"}], elem), ["div", {"class": "contentend"}]];
+                ["div", {"data-role": "header", "class": "header"}, 
+                ["h1", attr.title || "untitled"]],
+                childTransform(["div", {"data-role": "content"}], elem), 
+                    ["div", {"class": "contentend"}]];
 
         } else if(tag === "section") {
             tag = "div";
@@ -175,16 +232,18 @@ window.mui = (function(exports, global) {
             if(window.ssjs) {
                 var text = elem.slice(2).join("");
                 window.ssjs.buttonName(text, attr.fn);
-                return ["input", {"type": "submit", "name": "_B", "value": text}];
+                return ["input", 
+                        {"type": "submit", "name": "_B", "value": text}];
             }
-            attr = {"onclick": (function(fn) { return function() { fn(mui); }; })(attr.fn)};
+            attr = {"onclick": 
+                (function(fn) { return function() { fn(mui); }; })(attr.fn)};
             if(!$.mobile) {
                 classExtend(attr, "button");
                 tag = "div";
             }
 
         } else if(tag === "input") {
-            result = ["div",  {"data-role": "fieldcontain", "class": "input"} ];
+            result = ["div",  {"data-role": "fieldcontain", "class": "input"}];
             attr.id = "MUI_FORM_" + attr.name;
 
             if($.mobile) {
@@ -217,7 +276,8 @@ window.mui = (function(exports, global) {
                 } 
                 var select = childTransform(["select", attr], elem);
             }  else {
-                var select = childTransform(["select", attr, ["option", {value: ""}, attr.label]], elem);
+                var select = childTransform(["select", attr, 
+                        ["option", {value: ""}, attr.label]], elem);
             }
 
             for(var i=2;i<select.length;++i) {
@@ -230,6 +290,8 @@ window.mui = (function(exports, global) {
         }
         return childTransform([tag, attr], elem);
     };
+
+    // # Logic to render the page on "screen"
 
     exports.showPage = function(elem) {
         console.log("showPage");
@@ -261,7 +323,7 @@ window.mui = (function(exports, global) {
 
         if ($("#morecontainer")) {
             if(morefn) morefn(this);
-            // mui.more(morefn);
+            /* mui.more(morefn); */
         }
 
         if(window.ssjs) {
@@ -277,6 +339,7 @@ window.mui = (function(exports, global) {
         }
     }
 
+    // # Autoexpanding div, ie. search results
     exports.more = function more(fn) {
         $("#morecontainer").append('<div id="more"><a>more...</a></div>');
 
@@ -289,7 +352,8 @@ window.mui = (function(exports, global) {
         }
 
         onScreen = function onScreen() {
-            if ($("#more").offset() && $("#more").offset().top < window.innerHeight + window.pageYOffset) {
+            if ($("#more").offset() && $("#more").offset().top 
+                    < window.innerHeight + window.pageYOffset) {
                 update();
             }
         };
@@ -306,5 +370,6 @@ window.mui = (function(exports, global) {
         updateLayout();
     };
 
+    // # End of file
     return mui;
 })({}, this /*global*/);
