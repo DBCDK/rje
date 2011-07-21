@@ -1,5 +1,10 @@
 // This is the infrastructure for running MUI server side,
 // instead of client side. It runs within express webserver framework, and jsdom browser environment.
+//
+// It support any device capable of showin basic html without javascript)
+// Essentially it works by rendering the user interface
+// as a form, and then when the form is submitted, 
+// use that as events in the server side execution of the business logic.
 /**/
 // # Setup express/jsdom 
 var express = require('express');
@@ -64,6 +69,7 @@ clients = {};
 function handleRequest(req, res, window, mui) {
     var muiObject, sid, fn;
     
+    // ## Find mui object
     // get the session id, either from cookie of post parameters
     var params = req.body || req.query;
     if(req.cookies && req.cookies._) {
@@ -72,9 +78,10 @@ function handleRequest(req, res, window, mui) {
         sid = params._;
     }
 
+    // retrive or generate mui-object
     muiObject = clients[sid];
-
     if(!muiObject) {
+        // generate an unique session id
         sid = (new Date).getTime() % 10000 + Math.random();
         res.cookie('_', sid, {maxAge: 5*365*24*60*60*1000});
 
@@ -96,16 +103,24 @@ function handleRequest(req, res, window, mui) {
         })();
     }
 
-    muiObject.formValue = function(name) { return params[name]; };
+    // ## Handle form values
 
+    muiObject.formValue = function(name) { return params[name]; };
+    // `_B` is the name-property of button elements in the form
     muiObject.button = params._B;
 
+    // Lookup the event handler function.
+    // When retrieving a value, we may need to unescape 
+    // it if it is by GET request. Currently we are using POST
+    // so this is disabled
     /*
     fn = muiObject.fns[unescapeUri(muiObject.button || "")] || mui.main;
     */
     fn = muiObject.fns[muiObject.button] || mui.main;
     muiObject.fns = {};
     
+    // add an object to the browser environment, which can be used
+    // for registring callbacks, and sending data back to the client.
     window.ssjs = {
         buttonName: function(name, fn) {
             muiObject.fns[name] = fn;
@@ -138,8 +153,9 @@ function handleRequest(req, res, window, mui) {
         }
     }
         
+    // Cleanup...
     delete params._;
     delete params._B;
+    // ...and execute
     fn(muiObject);
-
 }
