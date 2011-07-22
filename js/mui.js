@@ -4,7 +4,20 @@ window.mui = (function(exports, global) {
     /*global $, jsonml, document, localStorage, setTimeout, window */
     "use strict";
     var mui = exports;
+
+    // function for autoexpanding section on page
     var morefn;
+
+    // storage session variables, only used client side
+    mui.session = {};
+
+    mui.storage = {};
+
+    // variable to keep track of the previous. 
+    // Practical for hinting on misfilled forms.
+    mui.prevPage = function() {
+        return this.previousPage;
+    };
 
 
     // ----
@@ -37,8 +50,6 @@ window.mui = (function(exports, global) {
 
     // ----
 
-    // mui.session is a place to store session variables
-    mui.session = {};
 
     // ## Get the value of a form element
     // Notice: server-side execution of mui overwrites this function.
@@ -49,12 +60,16 @@ window.mui = (function(exports, global) {
 
     // ## Jsonp requests
     /**/ 
+    // ### Utility functions for URI encoding 
     // Valid characters in URIs
     var urichars = '1234567890abcdefghijklmnopqrstuvwxyz' 
         + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ-_~.';
 
     // Workaround for buggy uri-escape in EcmaScript.
     // Escape an uri in a way that is compatible with web-clients/servers
+    //
+    // Seems like the browser-behaviour is to %-encode non-url-ascii-symbols
+    // and xml escape larger unicode (which then also needs to be %-encoded). 
     var escapeUri = exports.escapeUri = function(uri) {
         var result = [];
         for (var i = 0; i < uri.length; ++i) {
@@ -86,22 +101,14 @@ window.mui = (function(exports, global) {
     };
 
     // ### Function for calling a jsonp-api
+    // Just a wrapper of jquery, with our escape and syntax
+    // (which were defined before we started to use jquery)
     exports.callJsonpWebservice = 
             function(url, callbackParameterName, args, callback) {
         url = url + "?" + encodeUrlParameters(args) + "&" 
             + callbackParameterName + "=?";
         $.ajax(url, { dataType: "jsonp", success: callback, 
             error: function() { callback(); } });
-    };
-
-    // ----
-
-    exports.storage = {};
-
-    var previousPage;
-
-    exports.prevPage = function() {
-        return previousPage;
     };
 
     // ## Main function
@@ -295,7 +302,7 @@ window.mui = (function(exports, global) {
 
     exports.showPage = function(elem) {
         console.log("showPage");
-        previousPage = elem;
+        this.previousPage = elem;
         $(document).unbind('scroll');
         $("#morecontainer").attr("id", "");
         $("#more").attr("id", "");
