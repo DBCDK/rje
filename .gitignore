@@ -5,4 +5,5 @@ site.py
 .svn
 t
 README.pdf
+node_modules/
 docs/
