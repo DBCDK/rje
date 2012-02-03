@@ -1,9 +1,15 @@
 Copyright (C) 2011 by Dansk BiblioteksCenter
 Copyright (C) 2008-2011 by Rasmus Erik Voel Jensen
 
-Available under *either* the terms of the modified BSD license *or* 
-the MIT License *or* the GNU General Public License (GPL) at your choice. 
-See http://opensource.org/licenses/alphabetical for full text.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-(notice: contains some external libraries which is under Apache 2.0 license
-(compatible license with above afaik ianal))
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
