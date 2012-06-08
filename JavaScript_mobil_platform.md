@@ -27,17 +27,18 @@ starten af dokumentet.
 2 Principper/retningslinier
 Følgende principper/retningslinier, der blev formuleret af TA Forum i december
 2011, ligger til grund for de efterfølgende tekniske valg.
-• For løsninger til mobiltelefoner, udvikles der primært til smartphones, ikke til
+
+- For løsninger til mobiltelefoner, udvikles der primært til smartphones, ikke til
      featurephones. Så meget som muligt udvikles i platformeneutrale løsninger.
       SMS løsninger, mv, videreføres fra eksisterende løsninger.
-• Tablets henvises som hovedregel til (traditionelle) webløsninger (der evt.
+- Tablets henvises som hovedregel til (traditionelle) webløsninger (der evt.
     tilpasses). Apps til tablets/der afvikles på tablets kan evt. henvise til
     webløsninger.
-• Apps vil som hovedregel udvikles som ”wrappere” omkring platformneutral
+- Apps vil som hovedregel udvikles som ”wrappere” omkring platformneutral
        kode/mobilsites el. lignende.
-• Der udvikles til anerkendte standarder. Der testes på markedsledende
+- Der udvikles til anerkendte standarder. Der testes på markedsledende
     platforme.
-• Strategien skal løbende revideres, f.eks. årligt, og afstemmes med relevante
+- Strategien skal løbende revideres, f.eks. årligt, og afstemmes med relevante
      samarbejdspartnere.
 Udover ovenstående principper er det værd at bemærke at retningslinierne skal
 forstås i sammenhæng med DBCs service orienterede arkitektur. Som udgangs­

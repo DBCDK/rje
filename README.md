@@ -16,6 +16,7 @@ Foreløbigt er udkastet skrevet i [markdown](http://en.wikipedia.org/wiki/Markdo
 Du er velkommen til at redigere/skrive løs. Herunder idéer til, og overblik over, dokumentdele in progress.
 
 - Katalog over ikke-funktionelle krav til åbenhed og kodekvalitet. 
-    - Rasmus har nedfældet nogle noter omkring dette, og skriver dette sammen til egentligt dokument.
+    - nogle noter omkring dette. TODO-Rasmus: skriver dette sammen til egentligt dokument.
 - Tekniske platforme
     - ¿App-udvikling med mono v/Jan?
+    - JavaScript mobil udvikling - foreløbigt blot et uformateret dump fra nogle dbc-noter, TODO-Rasmus: omskrives til egentligt dokument
