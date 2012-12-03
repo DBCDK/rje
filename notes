@@ -1,0 +1,1 @@
+javac Foo.java && jar cf classes.jar Foo.class && java -classpath ./classes.jar:/usr/share/java/js.jar:/usr/share/java/jline.jar org.mozilla.javascript.tools.shell.Main ex2.js 
