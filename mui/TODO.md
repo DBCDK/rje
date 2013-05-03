@@ -1,0 +1,7 @@
+- doc - intenal / docco
+- doc - developer / markdown
+- testing - unit testing
+- testing - selenium support
+- QA - ff, ie, opera, oldandroid
+- Offline storage - mvcc on backbone
+- JavaScript pretty printer and transformation
